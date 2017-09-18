@@ -1,13 +1,13 @@
 setwd("D:/Het Project/Premier league/Voetbal-voorspellen")
 
-used.packages=c("xgboost","stringr","zoo")
+used.packages=c("xgboost","stringr","qlcMatrix")
 not.installed=!(used.packages %in% rownames(installed.packages()))
 if(length(used.packages[not.installed])>0){
   install.packages(used.packages[not.installed])
 }
 library("xgboost")
 library("stringr")
-library("zoo")
+library("qlcMatrix")
 
 raw.data.1 = read.csv('2000.csv')
 raw.data.2 = read.csv('2001.csv')
@@ -334,8 +334,8 @@ add_form=function(playing_stat,num){
   h=vector(mode="character",nrow(playing_stat))
   a=vector(mode="character",nrow(playing_stat))
   for (i in 1:(num*10)){
-    h[i] = 'M'  # since form is not available for n MW (n*10)
-    a[i] = 'M' 
+    h[i] = 0  # since form is not available for n MW (n*10)
+    a[i] = 0 
   }
   j = num+1
   for (i in (num*10+1):nrow(playing_stat)){
@@ -551,3 +551,31 @@ playing_stat['ATWinStreak3'] = ifelse(playing_stat["AM3"]==9,1,0)
 playing_stat['ATWinStreak5'] = ifelse(playing_stat["AM5"]==15,1,0)
 playing_stat['ATLossStreak3'] = ifelse(playing_stat["AM3"]==0,1,0)
 playing_stat['ATLossStreak5'] = ifelse(playing_stat["AM5"]==0,1,0)
+
+# Get Goal Difference
+playing_stat['HTGD'] = playing_stat['HTGS'] - playing_stat['HTGC']
+playing_stat['ATGD'] = playing_stat['ATGS'] - playing_stat['ATGC']
+
+# Diff in points
+playing_stat['DiffPts'] = playing_stat['HTP'] - playing_stat['ATP']
+
+diff_form=function(playing_stat){
+  HM5max=apply(cbind(playing_stat['HM5'],playing_stat['HM4'],playing_stat['HM3'],playing_stat['HM2'],playing_stat['HM1']),1,max)
+  AM5max=apply(cbind(playing_stat['AM5'],playing_stat['AM4'],playing_stat['AM3'],playing_stat['AM2'],playing_stat['AM1']),1,max)
+  HM5max=as.numeric(HM5max)
+  AM5max=as.numeric(AM5max)
+  return(HM5max-AM5max)
+  }
+playing_stat['DiffFormPts'] = diff_form(playing_stat)
+
+# Diff in last year positions
+playing_stat['DiffLP'] = playing_stat['HomeTeamLP'] - playing_stat['AwayTeamLP']
+
+# Scale DiffPts , DiffFormPts, HTGD, ATGD by Matchweek.
+cols = c('HTGD','ATGD','DiffPts','DiffFormPts','HTP','ATP')
+
+for (col in cols){
+  playing_stat[col] = playing_stat[col] / playing_stat$MW
+}
+
+write.csv(playing_stat,"final_dataset.csv")
