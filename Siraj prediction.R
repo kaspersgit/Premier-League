@@ -1,8 +1,10 @@
+install.packages("rBayesianOptimization")
 library("xgboost")  # the main algorithm
 library("archdata") # for the sample dataset
 library("caret")    # for the confusionmatrix() function (also needs e1071 package)
 library("dplyr")    # for some data preperation
 library("DiagrammeR")
+library("rBayesianOptimization")
 
 dataf=read.csv("final_dataset.csv")
 
@@ -109,3 +111,38 @@ importance_matrix = xgb.importance(feature_names = names(x_featured), model = bs
 head(importance_matrix)
 gp = xgb.plot.importance(importance_matrix)
 print(gp)
+
+
+# parameter optimazation
+# Example 2: Parameter Tuning
+library(xgboost)
+cv_folds <- KFold(train_label, nfolds = 5,
+                  stratified = TRUE, seed = 0)
+
+# Cross validating the xgboost model based on the input hyperparameters and the data
+xgb_cv_bayes <- function(max.depth, min_child_weight, subsample, colsample, eta) {
+  cv <- xgb.cv(params = list(booster = "gbtree", eta = eta,
+                             max_depth = max.depth,
+                             min_child_weight = min_child_weight,
+                             subsample = subsample, colsample_bytree =colsample,
+                             lambda = 1, alpha = 0,
+                             objective = "multi:softprob",
+                             num_class=numberOfClasses,
+                             eval_metric = "merror"),
+               data = train_matrix, nround = 100,
+               folds = cv_folds, prediction = TRUE, showsd = TRUE,
+               early_stopping_rounds = 5, maximize = TRUE, verbose = 0)
+  list(Score = -cv$evaluation_log[, max(test_merror_mean)],
+       Pred = cv$pred)
+}
+
+# optimizing based on the parameters in bounds with there value ranges in the brackets
+OPT_Res <- BayesianOptimization(xgb_cv_bayes,
+                                bounds = list(max.depth = c(2L, 8L),
+                                              min_child_weight = c(1L, 10L),
+                                              subsample = c(0.5, 0.8),
+                                              colsample =c(0.5, 0.9),
+                                              eta=c(0.01,0.5)),
+                                init_grid_dt = NULL, init_points = 10, n_iter = 20,
+                                acq = "ucb", kappa = 2.576, eps = 0.0,
+                                verbose = TRUE)
