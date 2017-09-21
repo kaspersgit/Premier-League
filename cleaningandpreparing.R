@@ -26,7 +26,28 @@ raw.data.14 = read.csv('2013.csv')
 raw.data.15 = read.csv('2014.csv')
 raw.data.16 = read.csv('2015.csv')
 raw.data.17 = read.csv('2016.csv')
-raw.data.18 = read.csv('2017.csv')
+# get the latest available data 
+raw.data.18 = read.csv("http://www.football-data.co.uk/mmz4281/1718/E0.csv")
+
+n.games=nrow(raw.data.18)
+# using the PL program to fill in the matches for the next match week
+# taken from http://dedicatedexcel.com/uk-football-fixtures-2017-18-in-excel-format/
+next.matches=read.csv("fixtures_2017_2018.csv", sep = ";")
+next.matches=next.matches[c((n.games+1):(n.games+10)),]
+fixtures=as.data.frame(matrix(rep(0,ncol(raw.data.18)*10),nrow=10))
+names(fixtures)=names(raw.data.18)
+
+#filling the dataframe with coming weeks matches
+fixtures$Div=rep("E0",nrow(fixtures))
+fixtures$HomeTeam=next.matches$HOME.TEAM
+fixtures$AwayTeam=next.matches$AWAY.TEAM
+fixtures$Date=format(as.Date(next.matches$DATE,"%d-%m-%Y"),"%d/%m/%y")
+fixtures$FTR=rep("D",nrow(fixtures))
+fixtures$HTR=rep("D",nrow(fixtures))
+fixtures$Referee=rep("D",nrow(fixtures))
+
+raw.data.18=rbind(raw.data.18,fixtures)
+
 
 delete.spaces=function(rawdata){
   rawdata$HomeTeam=str_replace_all(rawdata$HomeTeam, fixed(" "), "")
@@ -504,7 +525,8 @@ playing_stat = rbind(playing_statistics_1,
                           playing_statistics_14,
                           playing_statistics_15,
                           playing_statistics_16,
-                      playing_statistics_17)
+                          playing_statistics_17,
+                     playing_statistics_18)
 
 ####################################
 # Identify Win/Loss Streaks if any.

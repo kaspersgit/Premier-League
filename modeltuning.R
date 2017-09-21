@@ -1,4 +1,11 @@
-install.packages("rBayesianOptimization")
+setwd("D:/Het Project/Premier league/Voetbal-voorspellen")
+
+used.packages=c("xgboost","stringr","qlcMatrix","rBayesianOptimization")
+not.installed=!(used.packages %in% rownames(installed.packages()))
+if(length(used.packages[not.installed])>0){
+  install.packages(used.packages[not.installed])
+}
+
 library("xgboost")  # the main algorithm
 library("archdata") # for the sample dataset
 library("caret")    # for the confusionmatrix() function (also needs e1071 package)
