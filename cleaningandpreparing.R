@@ -114,7 +114,7 @@ raw.data.18$Date = as.Date(raw.data.18$Date, '%d/%m/%y')
 
 
 # columns connected to gameplay and clean data from NA's
-columns_req = c('Date','HomeTeam','AwayTeam','FTHG','FTAG','FTR')
+columns_req = c('Date','HomeTeam','AwayTeam','FTHG','FTAG','FTR','HS','AS','HST','AST')
 
 playing_statistics_1 = na.omit(raw.data.1[columns_req])                      
 playing_statistics_2 = na.omit(raw.data.2[columns_req])
@@ -249,7 +249,7 @@ playing_statistics_17 = get_gss(playing_statistics_17)
 playing_statistics_18 = get_gss(playing_statistics_18)
 
 
-# Gets the goals scored agg arranged by teams and matchweek
+# Gets the shots agg arranged by teams and matchweek
 get_shots=function(playing_stat){
   # Create a dictionary with team names as keys
   shots = matrix(rep(0,2*380),ncol=38)
@@ -260,7 +260,7 @@ get_shots=function(playing_stat){
     HTS=matrix(rep(0,2*19),ncol = 2)
     ATS=matrix(rep(0,2*19),ncol = 2)
     for (i in 1:sum(playing_stat$HomeTeam==t)){
-      HTS[i,]=t(c(playing_stat[which(playing_stat$HomeTeam==t)[i],c("HS")],playing_stat[which(playing_stat$HomeTeam==t)[i],c("Date")]))
+      HTS[i,]=t(c(playing_stat[which(playing_stat$HomeTeam==t)[i],"HS"],playing_stat[which(playing_stat$HomeTeam==t)[i],c("Date")]))
     }
     for (i in 1:sum(playing_stat$AwayTeam==t)){
       ATS[i,]=t(c(playing_stat[which(playing_stat$AwayTeam==t)[i],c("AS")],playing_stat[which(playing_stat$AwayTeam==t)[i],c("Date")]))
@@ -275,7 +275,7 @@ get_shots=function(playing_stat){
     }
     TS[,1]=cumsum(TS[,1])
     assign(t,TS[,1])
-    goalsscored[which(t==teamnames),]=t(TS[,1])
+    shots[which(t==teamnames),]=t(TS[,1])
   }  
   rownames(shots)=teamnames
   return(shots)
@@ -306,15 +306,15 @@ get_shots_on_target=function(playing_stat){
     }
     TST[,1]=cumsum(TST[,1])
     assign(t,TST[,1])
-    goalsconceded[which(t==teamnames),]=t(TST[,1])
+    shots_on_target[which(t==teamnames),]=t(TST[,1])
   }  
   rownames(shots_on_target)=teamnames
   return(shots_on_target)
 }
 
 get_sst=function(playing_stat){
-  shots = get_goals_conceded(playing_stat)
-  shotstarget = get_goals_scored(playing_stat)
+  shots = get_shots(playing_stat)
+  shotstarget = get_shots_on_target(playing_stat)
   
   j = 1
   HTS = rep(0,nrow(playing_stat))
