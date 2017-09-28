@@ -12,6 +12,9 @@ library("qlcMatrix")
 raw.data.1 = read.csv('2000.csv')
 raw.data.2 = read.csv('2001.csv')
 raw.data.3 = read.csv('2002.csv')
+  # Middlesbrough is written as Middlesboro in this file
+  raw.data.3$HomeTeam=str_replace_all(raw.data.3$HomeTeam, fixed("Middlesboro"),"Middlesbrough")
+  raw.data.3$AwayTeam=str_replace_all(raw.data.3$AwayTeam, fixed("Middlesboro"),"Middlesbrough")
 raw.data.4 = read.csv('2003.csv')
 raw.data.5 = read.csv('2004.csv')
 raw.data.6 = read.csv('2005.csv')
@@ -245,6 +248,120 @@ playing_statistics_16 = get_gss(playing_statistics_16)
 playing_statistics_17 = get_gss(playing_statistics_17)
 playing_statistics_18 = get_gss(playing_statistics_18)
 
+
+# Gets the goals scored agg arranged by teams and matchweek
+get_shots=function(playing_stat){
+  # Create a dictionary with team names as keys
+  shots = matrix(rep(0,2*380),ncol=38)
+  teamnames=unique(playing_stat$HomeTeam)
+  
+  # count goals at Home and Away and create cumulative total per matchweek
+  for (t in teamnames){
+    HTS=matrix(rep(0,2*19),ncol = 2)
+    ATS=matrix(rep(0,2*19),ncol = 2)
+    for (i in 1:sum(playing_stat$HomeTeam==t)){
+      HTS[i,]=t(c(playing_stat[which(playing_stat$HomeTeam==t)[i],c("HS")],playing_stat[which(playing_stat$HomeTeam==t)[i],c("Date")]))
+    }
+    for (i in 1:sum(playing_stat$AwayTeam==t)){
+      ATS[i,]=t(c(playing_stat[which(playing_stat$AwayTeam==t)[i],c("AS")],playing_stat[which(playing_stat$AwayTeam==t)[i],c("Date")]))
+    }
+    TS=rbind(HTS,ATS,c(0,0))
+    TS=TS[order(TS[,2]),]
+    TS=TS[-nrow(TS),]
+    fill.up.length=matrix(rep(0,2*length(which(TS[,2]==0)[-tail(which(TS[,2]==0),1)])),ncol = 2)
+    if (length(fill.up.length)>0){
+      TS=TS[-which(TS[,2]==0)[-tail(which(TS[,2]==0),1)],]
+      TS=rbind(TS,fill.up.length)
+    }
+    TS[,1]=cumsum(TS[,1])
+    assign(t,TS[,1])
+    goalsscored[which(t==teamnames),]=t(TS[,1])
+  }  
+  rownames(shots)=teamnames
+  return(shots)
+}
+
+get_shots_on_target=function(playing_stat){
+  # Create a dictionary with team names as keys
+  shots_on_target = matrix(rep(0,2*380),ncol=38)
+  teamnames=unique(playing_stat$HomeTeam)
+  
+  # count goals at Home and Away and create cumulative total per matchweek
+  for (t in teamnames){
+    HTST=matrix(rep(0,2*19),ncol = 2)
+    ATST=matrix(rep(0,2*19),ncol = 2)
+    for (i in 1:sum(playing_stat$HomeTeam==t)){
+      HTST[i,]=t(c(playing_stat[which(playing_stat$HomeTeam==t)[i],c("HST")],as.numeric(playing_stat[which(playing_stat$HomeTeam==t)[i],c("Date")])))
+    }
+    for (i in 1:sum(playing_stat$AwayTeam==t)){
+      ATST[i,]=t(c(playing_stat[which(playing_stat$AwayTeam==t)[i],c("AST")],as.numeric(playing_stat[which(playing_stat$AwayTeam==t)[i],c("Date")])))
+    }
+    TST=rbind(HTST,ATST,c(0,0))
+    TST=TST[order(TST[,2]),]
+    TST=TST[-nrow(TST),]
+    fill.up.length=matrix(rep(0,2*length(which(TST[,2]==0)[-tail(which(TST[,2]==0),1)])),ncol = 2)
+    if(length(fill.up.length)>0){
+      TST=TST[-which(TST[,2]==0)[-tail(which(TST[,2]==0),1)],]
+      TST=rbind(TST,fill.up.length)
+    }
+    TST[,1]=cumsum(TST[,1])
+    assign(t,TST[,1])
+    goalsconceded[which(t==teamnames),]=t(TST[,1])
+  }  
+  rownames(shots_on_target)=teamnames
+  return(shots_on_target)
+}
+
+get_sst=function(playing_stat){
+  shots = get_goals_conceded(playing_stat)
+  shotstarget = get_goals_scored(playing_stat)
+  
+  j = 1
+  HTS = rep(0,nrow(playing_stat))
+  ATS = rep(0,nrow(playing_stat))
+  HTST = rep(0,nrow(playing_stat))
+  ATST = rep(0,nrow(playing_stat))
+  
+  for (i in 1:nrow(playing_stat)){
+    ht = playing_stat$HomeTeam[i]
+    at = playing_stat$AwayTeam[i]
+    HTS[i]=shots[ht,j]
+    ATS[i]=shots[at,j]
+    HTST[i]=shotstarget[ht,j]
+    ATST[i]=shotstarget[at,j]
+    
+    if ((i %% 10) == 0){
+      j = j + 1
+    }
+    
+    playing_stat['HTS'] = HTS
+    playing_stat['ATS'] = ATS
+    playing_stat['HTST'] = HTST
+    playing_stat['ATST'] = ATST
+  }
+  return(playing_stat)
+}
+
+# Apply to each dataset
+playing_statistics_1 = get_sst(playing_statistics_1)
+playing_statistics_2 = get_sst(playing_statistics_2)
+playing_statistics_3 = get_sst(playing_statistics_3)
+playing_statistics_4 = get_sst(playing_statistics_4)
+playing_statistics_5 = get_sst(playing_statistics_5)
+playing_statistics_6 = get_sst(playing_statistics_6)
+playing_statistics_7 = get_sst(playing_statistics_7)
+playing_statistics_8 = get_sst(playing_statistics_8)
+playing_statistics_9 = get_sst(playing_statistics_9)
+playing_statistics_10 = get_sst(playing_statistics_10)
+playing_statistics_11 = get_sst(playing_statistics_11)
+playing_statistics_12 = get_sst(playing_statistics_12)
+playing_statistics_13 = get_sst(playing_statistics_13)
+playing_statistics_14 = get_sst(playing_statistics_14)
+playing_statistics_15 = get_sst(playing_statistics_15)
+playing_statistics_16 = get_sst(playing_statistics_16)
+playing_statistics_17 = get_sst(playing_statistics_17)
+playing_statistics_18 = get_sst(playing_statistics_18)
+
 # get respective points
 get_points_gained=function(playing_stat){
   # Create a dictionary with team names as keys
@@ -413,7 +530,7 @@ playing_statistics_18 = add_form_df(playing_statistics_18)
 
 
 # Rearranging columns
-cols = c('Date', 'HomeTeam', 'AwayTeam', 'FTHG', 'FTAG', 'FTR', 'HTGS', 'ATGS', 'HTGC', 'ATGC', 'HTP', 'ATP', 'HM1', 'HM2', 'HM3',
+cols = c('Date', 'HomeTeam', 'AwayTeam', 'FTHG', 'FTAG', 'FTR', 'HTGS', 'ATGS', 'HTGC', 'ATGC', 'HTP', 'ATP','HTS','ATS','HTST','ATST', 'HM1', 'HM2', 'HM3',
         'HM4', 'HM5', 'AM1', 'AM2', 'AM3', 'AM4', 'AM5')
 
 playing_statistics_1 = playing_statistics_1[cols]
@@ -475,6 +592,45 @@ playing_statistics_16 = get_last(playing_statistics_16, Standings, "X2015")
 playing_statistics_17 = get_last(playing_statistics_17, Standings, "X2016")
 playing_statistics_18 = get_last(playing_statistics_18, Standings, "X2017")
 
+#Get average age as also an independent variable:
+AvgAge = read.csv("AvgAge.csv", sep = ",")
+AvgAge[,1]=str_replace_all(AvgAge[,1], fixed(" "), "")
+rownames(AvgAge)=AvgAge[,1]
+AvgAge=AvgAge[,-1]
+
+get_AvgAge=function(playing_stat, AvgAge, year){
+  HomeTeamAA = rep(0,nrow(playing_stat))
+  AwayTeamAA = rep(0,nrow(playing_stat))
+  for (i in 1:nrow(playing_stat)){
+    ht = playing_stat$HomeTeam[i]
+    at = playing_stat$AwayTeam[i]
+    HomeTeamAA[i]=AvgAge[ht,year]
+    AwayTeamAA[i]=AvgAge[at,year]
+  } 
+  playing_stat['HomeAvgAge'] = HomeTeamAA
+  playing_stat['AwayAvgAge'] = AwayTeamAA
+  return (playing_stat)
+}
+
+playing_statistics_1 = get_AvgAge(playing_statistics_1, AvgAge, "X2000")
+playing_statistics_2 = get_AvgAge(playing_statistics_2, AvgAge, "X2001")
+playing_statistics_3 = get_AvgAge(playing_statistics_3, AvgAge, "X2002")
+playing_statistics_4 = get_AvgAge(playing_statistics_4, AvgAge, "X2003")
+playing_statistics_5 = get_AvgAge(playing_statistics_5, AvgAge, "X2004")
+playing_statistics_6 = get_AvgAge(playing_statistics_6, AvgAge, "X2005")
+playing_statistics_7 = get_AvgAge(playing_statistics_7, AvgAge, "X2006")
+playing_statistics_8 = get_AvgAge(playing_statistics_8, AvgAge, "X2007")
+playing_statistics_9 = get_AvgAge(playing_statistics_9, AvgAge, "X2008")
+playing_statistics_10 = get_AvgAge(playing_statistics_10, AvgAge, "X2009")
+playing_statistics_11 = get_AvgAge(playing_statistics_11, AvgAge, "X2010")
+playing_statistics_12 = get_AvgAge(playing_statistics_12, AvgAge, "X2011")
+playing_statistics_13 = get_AvgAge(playing_statistics_13, AvgAge, "X2012")
+playing_statistics_14 = get_AvgAge(playing_statistics_14, AvgAge, "X2013")
+playing_statistics_15 = get_AvgAge(playing_statistics_15, AvgAge, "X2014")
+playing_statistics_16 = get_AvgAge(playing_statistics_16, AvgAge, "X2015")
+playing_statistics_17 = get_AvgAge(playing_statistics_17, AvgAge, "X2016")
+playing_statistics_18 = get_AvgAge(playing_statistics_18, AvgAge, "X2017")
+
 #Get MatchWeek
 get_mw=function(playing_stat){
   j = 1
@@ -527,6 +683,24 @@ playing_stat = rbind(playing_statistics_1,
                           playing_statistics_16,
                           playing_statistics_17,
                      playing_statistics_18)
+
+### Add distance between clubs playing grounds (air distance in km) 
+distances=read.csv("distances.csv",row.names = 1)
+colnames(distances)=str_replace_all(colnames(distances), fixed("."), "")
+rownames(distances)=str_replace_all(rownames(distances), fixed(" "), "")
+
+get_distance=function(playing_statd){
+  Distance = rep(0,nrow(playing_statd))
+  for (i in 1:nrow(playing_statd)){
+    ht = playing_statd$HomeTeam[i]
+    at = playing_statd$AwayTeam[i]
+    Distance[i]=distances[ht,at]
+  } 
+  playing_statd["Distance"] = Distance
+  return (playing_statd)
+}
+
+playing_stat=get_distance(playing_stat)
 
 ####################################
 # Identify Win/Loss Streaks if any.
@@ -594,7 +768,7 @@ playing_stat['DiffFormPts'] = diff_form(playing_stat)
 playing_stat['DiffLP'] = playing_stat['HomeTeamLP'] - playing_stat['AwayTeamLP']
 
 # Scale DiffPts , DiffFormPts, HTGD, ATGD by Matchweek.
-cols = c('HTGD','ATGD','DiffPts','DiffFormPts','HTP','ATP')
+cols = c('HTGD','ATGD','DiffPts','DiffFormPts','HTP','ATP','HTS','ATS','HTST','ATST')
 
 for (col in cols){
   playing_stat[col] = playing_stat[col] / playing_stat$MW

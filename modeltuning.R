@@ -1,6 +1,6 @@
 setwd("D:/Het Project/Premier league/Voetbal-voorspellen")
 
-used.packages=c("xgboost","stringr","qlcMatrix","rBayesianOptimization")
+used.packages=c("xgboost","archdata","caret","DiagrammeR","rBayesianOptimization")
 not.installed=!(used.packages %in% rownames(installed.packages()))
 if(length(used.packages[not.installed])>0){
   install.packages(used.packages[not.installed])
@@ -12,8 +12,12 @@ library("caret")    # for the confusionmatrix() function (also needs e1071 packa
 library("dplyr")    # for some data preperation
 library("DiagrammeR")
 library("rBayesianOptimization")
+library("qlcMatrix")
 
-dataf=read.csv("final_dataset.csv")
+datac=read.csv("final_dataset.csv")
+
+# excluding non played matches
+dataf=datac[-c((nrow(datac)-10):nrow(datac)),]
 
 # Separate into feature set and target variable
 #FTR = Full Time Result (H=Home Win, D=Draw, A=Away Win)
@@ -22,7 +26,7 @@ y_all = dataf['FTR']
 
 #Standardising the data
 #Center to the mean and component wise scale to unit variance.
-cols = c('HTGD','ATGD','HTP','ATP','DiffLP')
+cols = c('HTGD','ATGD','HTP','ATP','DiffLP','Distance','AwayAvgAge','HomeAvgAge')
 x_all[cols] = scale(x_all[cols])
 
 #last 3 matches for both sides
@@ -41,7 +45,9 @@ f <- as.formula(paste("~ -1 +", paste(n[!n %in% c("X","Date")], collapse = "+"))
 A <- model.matrix(f,x_all) 
 head(A)
 A=as.data.frame(A)
-x_featured=A[,c('HTP', 'ATP', 'HM1L', 'HM1W','HM1NM', 'HM2L', 'HM2W','HM2NM', 'HM3L', 'HM3W','HM3NM', 'AM1L','AM1NM', 'AM1W', 'AM2L', 'AM2W','AM2NM', 'AM3L', 'AM3W','AM3NM', 'HTGD', 'ATGD',"DiffPts", 'DiffFormPts', 'DiffLP')]
+x_featured=A[,c('HTP', 'ATP', 'HM1L', 'HM1W','HM1NM', 'HM2L', 'HM2W','HM2NM', 'HM3L', 'HM3W','HM3NM',
+                'AM1L','AM1NM', 'AM1W', 'AM2L', 'AM2W','AM2NM', 'AM3L', 'AM3W','AM3NM', 'HTGD', 'ATGD',
+                "DiffPts", 'DiffFormPts', 'DiffLP','Distance','AwayAvgAge','HomeAvgAge')]
 
 df=cbind(x_featured,y_all)
 
@@ -67,7 +73,7 @@ test_label <- data_label[-train_index]
 test_matrix <- xgb.DMatrix(data = test_data, label = test_label)
 
 numberOfClasses <- length(unique(dat$FTRC))
-xgb_params <- list("max_depth"=5,"eta"=0.5,
+xgb_params <- list("max_depth"=3,"eta"=0.5,
                    "colsample_bytree"=0.9,
                    "objective" = "multi:softprob",
                    "eval_metric" = "mlogloss",
@@ -76,7 +82,7 @@ xgb_params <- list("max_depth"=5,"eta"=0.5,
                    "alpha"=0,
                    "lambda"=1,
                    "num_class" = numberOfClasses)
-nround    <- 5 # number of XGBoost rounds
+nround    <- 7 # number of XGBoost rounds
 cv.nfold  <- 10
 
 # Fit cv.nfold * cv.nround XGB models and save OOF predictions
@@ -91,6 +97,16 @@ OOF_prediction <- data.frame(cv_model$pred) %>%
   mutate(max_prob = max.col(., ties.method = "last"),
          label = train_label + 1)
 head(OOF_prediction)
+
+### checking if between two prbabilities the fraction of correct predictions is the same
+LB=0.48
+UB=0.5
+preds=OOF_prediction
+preds$high.prob=apply(preds[,c(1:3)],1,max)
+part.preds=preds[preds$high.prob>LB&preds$high.prob<UB,]
+fraction.correct=sum(part.preds$max_prob==part.preds$label)/nrow(part.preds)
+cat("For predictions with probability between ",100*LB,"% and ",100*UB,"%\n",
+    "the fraction that is correctly predicted is ",100*fraction.correct,"%",sep = "")
 
 # confusion matrix, how many time the model confuses the classes
 idx=as.character(na.omit(factor(OOF_prediction$max_prob)))

@@ -1,6 +1,6 @@
 setwd("D:/Het Project/Premier league/Voetbal-voorspellen")
 
-used.packages=c("xgboost","stringr","qlcMatrix","rBayesianOptimization")
+used.packages=c("xgboost","stringr","qlcMatrix","rBayesianOptimization","mailR","rJava")
 not.installed=!(used.packages %in% rownames(installed.packages()))
 if(length(used.packages[not.installed])>0){
   install.packages(used.packages[not.installed])
@@ -11,6 +11,8 @@ library("caret")    # for the confusionmatrix() function (also needs e1071 packa
 library("dplyr")    # for some data preperation
 library("DiagrammeR")
 library("rBayesianOptimization")
+library("mailR")
+library("rJava")
 
 dataf=read.csv("final_dataset.csv")
 
@@ -40,7 +42,9 @@ f <- as.formula(paste("~ -1 +", paste(n[!n %in% c("X","Date")], collapse = "+"))
 A <- model.matrix(f,x_all) 
 head(A)
 A=as.data.frame(A)
-x_featured=A[,c('HTP', 'ATP', 'HM1L', 'HM1W','HM1NM', 'HM2L', 'HM2W','HM2NM', 'HM3L', 'HM3W','HM3NM', 'AM1L','AM1NM', 'AM1W', 'AM2L', 'AM2W','AM2NM', 'AM3L', 'AM3W','AM3NM', 'HTGD', 'ATGD',"DiffPts", 'DiffFormPts', 'DiffLP')]
+x_featured=A[,c('HTP', 'ATP', 'HM1L', 'HM1W','HM1NM', 'HM2L', 'HM2W','HM2NM', 'HM3L', 'HM3W','HM3NM',
+                'AM1L','AM1NM', 'AM1W', 'AM2L', 'AM2W','AM2NM', 'AM3L', 'AM3W','AM3NM', 'HTGD', 'ATGD',
+                "DiffPts", 'DiffFormPts', 'DiffLP','Distance')]
 
 df=cbind(x_featured,y_all)
 
@@ -67,7 +71,7 @@ predict_label <- data_label[fixtures.coming]
 predict_matrix <- xgb.DMatrix(data = predict_data, label = predict_label)
 
 numberOfClasses <- length(unique(dat$FTRC))
-xgb_params <- list("max_depth"=5,"eta"=0.5,
+xgb_params <- list("max_depth"=3,"eta"=0.5,
                    "colsample_bytree"=0.9,
                    "objective" = "multi:softprob",
                    "eval_metric" = "mlogloss",
@@ -76,7 +80,7 @@ xgb_params <- list("max_depth"=5,"eta"=0.5,
                    "alpha"=0,
                    "lambda"=1,
                    "num_class" = numberOfClasses)
-nround    <- 5 # number of XGBoost rounds
+nround    <- 7 # number of XGBoost rounds
 cv.nfold  <- 10
 
 bst_model <- xgb.train(params = xgb_params,
@@ -99,6 +103,15 @@ test_prediction$PredictedOutcome=ifelse(test_prediction$max_prob==1,test_predict
                                                         
 print(test_prediction)
 
+write.csv(test_prediction,paste("prediction_MW",(nrow(dataf) %% 380)/10,"_",tail(dataf$Date,n=1),".csv",sep = ""))
+
+# send.mail(from = "r.notification.kdh@gmail.com",
+#           to = "kasperde@hotmail.com",
+#           subject = "Inkoop advies",
+#           body = "Inkoop moment is gesignaleerd",
+#           smtp = list(host.name = "smtp.gmail.com", port = 465, user.name = "r.notification.kdh", passwd = "gle1992Dwizgh?!", SSL = TRUE),
+#           authenticate = TRUE,
+#           send = TRUE)   
 
 
 
