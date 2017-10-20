@@ -81,7 +81,7 @@ predict_label <- data_label[fixtures.coming]
 predict_matrix <- xgb.DMatrix(data = predict_data, label = predict_label)
 
 numberOfClasses <- length(unique(dat$FTRC))
-xgb_params <- list("max_depth"=3,"eta"=0.5,
+xgb_params <- list("max_depth"=3,"eta"=0.2,
                    "colsample_bytree"=0.9,
                    "objective" = "multi:softprob",
                    "eval_metric" = "mlogloss",
@@ -90,7 +90,7 @@ xgb_params <- list("max_depth"=3,"eta"=0.5,
                    "alpha"=0,
                    "lambda"=1,
                    "num_class" = numberOfClasses)
-nround    <- 8 # number of XGBoost rounds
+nround    <- 20 # number of XGBoost rounds
 cv.nfold  <- 10
 
 bst_model <- xgb.train(params = xgb_params,

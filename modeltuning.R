@@ -82,7 +82,7 @@ test_label <- data_label[-train_index]
 test_matrix <- xgb.DMatrix(data = test_data, label = test_label)
 
 numberOfClasses <- length(unique(dat$FTRC))
-xgb_params <- list("max_depth"=3,"eta"=0.5,
+xgb_params <- list("max_depth"=3,"eta"=0.2,
                    "colsample_bytree"=0.9,
                    "objective" = "multi:softprob",
                    "eval_metric" = "mlogloss",
@@ -91,7 +91,7 @@ xgb_params <- list("max_depth"=3,"eta"=0.5,
                    "alpha"=0,
                    "lambda"=1,
                    "num_class" = numberOfClasses)
-nround    <- 8 # number of XGBoost rounds
+nround    <- 20 # number of XGBoost rounds
 cv.nfold  <- 10
 
 # Fit cv.nfold * cv.nround XGB models and save OOF predictions
@@ -133,8 +133,8 @@ profit
 
 
 ### checking if between two prbabilities the fraction of correct predictions is the same
-LB=0.48
-UB=0.5
+LB=0.7
+UB=0.8
 preds=OOF_prediction
 preds$high.prob=apply(preds[,c(1:3)],1,max)
 part.preds=preds[preds$high.prob>LB&preds$high.prob<UB,]
