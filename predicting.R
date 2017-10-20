@@ -31,7 +31,7 @@ y_all = dataf['FTR']
 
 #Standardising the data
 #Center to the mean and component wise scale to unit variance.
-cols = c('HTGD','ATGD','HTP','ATP','DiffLP','AwayAvgAge','HomeAvgAge','HTS','ATS','HTST','ATST')
+cols = c('HTGD','ATGD','HTP','ATP','DiffLP','AwayAvgAge','HomeAvgAge','HomeAvgMV','AwayAvgMV','HTS','ATS','HTST','ATST')
 x_all[cols] = scale(x_all[cols])
 
 #last 3 matches for both sides
@@ -52,7 +52,8 @@ head(A)
 A=as.data.frame(A)
 x_featured=A[,c('HTP', 'ATP', 'HM1L', 'HM1W','HM1NM', 'HM2L', 'HM2W','HM2NM', 'HM3L', 'HM3W','HM3NM',
                 'AM1L','AM1NM', 'AM1W', 'AM2L', 'AM2W','AM2NM', 'AM3L', 'AM3W','AM3NM', 'HTGD', 'ATGD',
-                "DiffPts", 'DiffFormPts', 'DiffLP','Distance','AwayAvgAge','HomeAvgAge','HTS','ATS',
+                "DiffPts", 'DiffFormPts', 'DiffLP','Distance','AwayAvgAge','HomeAvgAge','HomeAvgMV','AwayAvgMV',
+                'HTS','ATS',
                 'HTST','ATST')]
 
 df=cbind(x_featured,y_all)
@@ -89,7 +90,7 @@ xgb_params <- list("max_depth"=3,"eta"=0.5,
                    "alpha"=0,
                    "lambda"=1,
                    "num_class" = numberOfClasses)
-nround    <- 7 # number of XGBoost rounds
+nround    <- 8 # number of XGBoost rounds
 cv.nfold  <- 10
 
 bst_model <- xgb.train(params = xgb_params,

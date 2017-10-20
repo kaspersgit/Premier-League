@@ -628,6 +628,46 @@ preparation <- function(){
   playing_statistics_17 = get_AvgAge(playing_statistics_17, AvgAge, "X2016")
   playing_statistics_18 = get_AvgAge(playing_statistics_18, AvgAge, "X2017")
   
+  #Get average age as also an independent variable:
+  AvgMV = read.csv("AvgMV.csv", sep = ";")
+  AvgMV[,1]=str_replace_all(AvgMV[,1], fixed(" "), "")
+  rownames(AvgMV)=AvgMV[,1]
+  AvgMV=AvgMV[,-1]
+  
+  get_AvgMV=function(playing_stat, AvgMV, year){
+    HomeTeamAA = rep(0,nrow(playing_stat))
+    AwayTeamAA = rep(0,nrow(playing_stat))
+    for (i in 1:nrow(playing_stat)){
+      ht = playing_stat$HomeTeam[i]
+      at = playing_stat$AwayTeam[i]
+      HomeTeamAA[i]=AvgMV[ht,year]
+      AwayTeamAA[i]=AvgMV[at,year]
+    } 
+    playing_stat['HomeAvgMV'] = HomeTeamAA
+    playing_stat['AwayAvgMV'] = AwayTeamAA
+    return (playing_stat)
+  }
+  
+  # not available until 2005
+  # playing_statistics_1 = get_AvgMV(playing_statistics_1, AvgMV, "X2000")
+  # playing_statistics_2 = get_AvgMV(playing_statistics_2, AvgMV, "X2001")
+  # playing_statistics_3 = get_AvgMV(playing_statistics_3, AvgMV, "X2002")
+  # playing_statistics_4 = get_AvgMV(playing_statistics_4, AvgMV, "X2003")
+  # playing_statistics_5 = get_AvgMV(playing_statistics_5, AvgMV, "X2004")
+  playing_statistics_6 = get_AvgMV(playing_statistics_6, AvgMV, "X2005")
+  playing_statistics_7 = get_AvgMV(playing_statistics_7, AvgMV, "X2006")
+  playing_statistics_8 = get_AvgMV(playing_statistics_8, AvgMV, "X2007")
+  playing_statistics_9 = get_AvgMV(playing_statistics_9, AvgMV, "X2008")
+  playing_statistics_10 = get_AvgMV(playing_statistics_10, AvgMV, "X2009")
+  playing_statistics_11 = get_AvgMV(playing_statistics_11, AvgMV, "X2010")
+  playing_statistics_12 = get_AvgMV(playing_statistics_12, AvgMV, "X2011")
+  playing_statistics_13 = get_AvgMV(playing_statistics_13, AvgMV, "X2012")
+  playing_statistics_14 = get_AvgMV(playing_statistics_14, AvgMV, "X2013")
+  playing_statistics_15 = get_AvgMV(playing_statistics_15, AvgMV, "X2014")
+  playing_statistics_16 = get_AvgMV(playing_statistics_16, AvgMV, "X2015")
+  playing_statistics_17 = get_AvgMV(playing_statistics_17, AvgMV, "X2016")
+  playing_statistics_18 = get_AvgMV(playing_statistics_18, AvgMV, "X2017")
+  
   #Get MatchWeek
   get_mw=function(playing_stat){
     j = 1
@@ -662,12 +702,7 @@ preparation <- function(){
   playing_statistics_18 = get_mw(playing_statistics_18)
   
   # Combining to one dataset
-  playing_stat = rbind(playing_statistics_1,
-                            playing_statistics_2,
-                            playing_statistics_3,
-                            playing_statistics_4,
-                            playing_statistics_5,
-                            playing_statistics_6,
+  playing_stat = rbind(playing_statistics_6,
                             playing_statistics_7,
                             playing_statistics_8,
                             playing_statistics_9,

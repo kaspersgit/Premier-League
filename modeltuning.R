@@ -26,7 +26,7 @@ y_all = dataf['FTR']
 
 #Standardising the data
 #Center to the mean and component wise scale to unit variance.
-cols = c('HTGD','ATGD','HTP','ATP','DiffLP','Distance','AwayAvgAge','HomeAvgAge','HTS','ATS','HTST','ATST')
+cols = c('HTGD','ATGD','HTP','ATP','DiffLP','Distance','AwayAvgAge','HomeAvgAge','HomeAvgMV','AwayAvgMV','HTS','ATS','HTST','ATST')
 x_all[cols] = scale(x_all[cols])
 
 #last 3 matches for both sides
@@ -45,10 +45,17 @@ f <- as.formula(paste("~ -1 +", paste(n[!n %in% c("X","Date")], collapse = "+"))
 A <- model.matrix(f,x_all) 
 head(A)
 A=as.data.frame(A)
+
+# with interwetten columns
+# x_featured=A[,c('HTP', 'ATP', 'HM1L', 'HM1W','HM1NM', 'HM2L', 'HM2W','HM2NM', 'HM3L', 'HM3W','HM3NM',
+#                 'AM1L','AM1NM', 'AM1W', 'AM2L', 'AM2W','AM2NM', 'AM3L', 'AM3W','AM3NM', 'HTGD', 'ATGD',
+#                 "DiffPts", 'DiffFormPts', 'DiffLP','Distance','AwayAvgAge','HomeAvgAge','HomeAvgMV','AwayAvgMV',
+#                 'HTS','ATS','HTST','ATST','IWH','IWD','IWA')]
+
 x_featured=A[,c('HTP', 'ATP', 'HM1L', 'HM1W','HM1NM', 'HM2L', 'HM2W','HM2NM', 'HM3L', 'HM3W','HM3NM',
                 'AM1L','AM1NM', 'AM1W', 'AM2L', 'AM2W','AM2NM', 'AM3L', 'AM3W','AM3NM', 'HTGD', 'ATGD',
-                "DiffPts", 'DiffFormPts', 'DiffLP','Distance','AwayAvgAge','HomeAvgAge','HTS','ATS',
-                'HTST','ATST','IWH','IWD','IWA')]
+                "DiffPts", 'DiffFormPts', 'DiffLP','Distance','AwayAvgAge','HomeAvgAge','HomeAvgMV','AwayAvgMV',
+                'HTS','ATS','HTST','ATST')]
 
 df=cbind(x_featured,y_all)
 
@@ -61,8 +68,8 @@ set.seed(999)
 # Make split index
 train_index <- sample(1:nrow(dat), nrow(dat)*0.75)
 # Full data set
-data_variables <- as.matrix(dat[,-which(names(dat) %in% c("FTRC",'IWH','IWD','IWA'))])
-odds=dat[train_index,c('IWH','IWD','IWA')]
+data_variables <- as.matrix(dat[,-which(names(dat) %in% c("FTRC"))]) # putting 'IWH','IWD','IWA' in the "FTRC" vector to work with interwetten odds
+# odds=dat[train_index,c('IWH','IWD','IWA')]
 data_label <- dat[,"FTRC"]
 data_matrix <- xgb.DMatrix(data = as.matrix(dat), label = data_label)
 # split train data and make xgb.DMatrix
@@ -84,7 +91,7 @@ xgb_params <- list("max_depth"=3,"eta"=0.5,
                    "alpha"=0,
                    "lambda"=1,
                    "num_class" = numberOfClasses)
-nround    <- 7 # number of XGBoost rounds
+nround    <- 8 # number of XGBoost rounds
 cv.nfold  <- 10
 
 # Fit cv.nfold * cv.nround XGB models and save OOF predictions
