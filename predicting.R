@@ -1,6 +1,6 @@
 setwd("D:/Het Project/Premier league/Voetbal-voorspellen")
 
-used.packages=c("xgboost","stringr","qlcMatrix","rBayesianOptimization","mailR","rJava")
+used.packages=c("xgboost","stringr","qlcMatrix","rBayesianOptimization","mailR","rJava","e1071")
 not.installed=!(used.packages %in% rownames(installed.packages()))
 if(length(used.packages[not.installed])>0){
   install.packages(used.packages[not.installed])
@@ -9,11 +9,19 @@ if(length(used.packages[not.installed])>0){
 library("xgboost")  # the main algorithm
 library("caret")    # for the confusionmatrix() function (also needs e1071 package)
 library("dplyr")    # for some data preperation
+library("stringr")
 library("DiagrammeR")
+library("qlcMatrix")
 library("rBayesianOptimization")
 library("mailR")
 library("rJava")
 
+if(!exists("foo", mode="function")) source("cleaningandpreparing.R")
+
+# import and prepare the data and eventually save it as csv
+preparation()
+
+# download that csv for further use and prediction
 dataf=read.csv("final_dataset.csv")
 
 # Separate into feature set and target variable
@@ -99,6 +107,9 @@ test_prediction <- matrix(test_pred, nrow = numberOfClasses,
 test_prediction[,c("Date","HomeTeam","AwayTeam")]=x_all[fixtures.coming,c("Date","HomeTeam","AwayTeam")]
 test_prediction$HomeTeam=as.character(test_prediction$HomeTeam)
 test_prediction$AwayTeam=as.character(test_prediction$AwayTeam)
+test_prediction$Homeodd=1/test_prediction$Home
+test_prediction$Drawodd=1/test_prediction$Draw
+test_prediction$Awayodd=1/test_prediction$Away
 names(test_prediction)[c(1:3)]=c("Home","Draw","Away")
 test_prediction$PredictedOutcome=ifelse(test_prediction$max_prob==1,test_prediction$HomeTeam,ifelse(test_prediction$max_prob==3,test_prediction$AwayTeam,"Draw"))
                                                         
@@ -112,7 +123,7 @@ write.csv(test_prediction,paste("prediction_MW",(nrow(dataf) %% 380)/10,"_",tail
 #           body = "Inkoop moment is gesignaleerd",
 #           smtp = list(host.name = "smtp.gmail.com", port = 465, user.name = "r.notification.kdh", passwd = "gle1992Dwizgh?!", SSL = TRUE),
 #           authenticate = TRUE,
-#           send = TRUE)   
+#           send = TRUE)
 
 
 

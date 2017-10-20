@@ -48,7 +48,7 @@ A=as.data.frame(A)
 x_featured=A[,c('HTP', 'ATP', 'HM1L', 'HM1W','HM1NM', 'HM2L', 'HM2W','HM2NM', 'HM3L', 'HM3W','HM3NM',
                 'AM1L','AM1NM', 'AM1W', 'AM2L', 'AM2W','AM2NM', 'AM3L', 'AM3W','AM3NM', 'HTGD', 'ATGD',
                 "DiffPts", 'DiffFormPts', 'DiffLP','Distance','AwayAvgAge','HomeAvgAge','HTS','ATS',
-                'HTST','ATST')]
+                'HTST','ATST','IWH','IWD','IWA')]
 
 df=cbind(x_featured,y_all)
 
@@ -61,7 +61,8 @@ set.seed(999)
 # Make split index
 train_index <- sample(1:nrow(dat), nrow(dat)*0.75)
 # Full data set
-data_variables <- as.matrix(dat[,-which(names(dat)=="FTRC")])
+data_variables <- as.matrix(dat[,-which(names(dat) %in% c("FTRC",'IWH','IWD','IWA'))])
+odds=dat[train_index,c('IWH','IWD','IWA')]
 data_label <- dat[,"FTRC"]
 data_matrix <- xgb.DMatrix(data = as.matrix(dat), label = data_label)
 # split train data and make xgb.DMatrix
@@ -98,6 +99,31 @@ OOF_prediction <- data.frame(cv_model$pred) %>%
   mutate(max_prob = max.col(., ties.method = "last"),
          label = train_label + 1)
 head(OOF_prediction)
+
+
+## checking if profit would be made with certain strategy
+pred.and.odds=cbind(OOF_prediction,odds)
+pred.and.odds$H=pred.and.odds$X1*pred.and.odds$IWH
+pred.and.odds$D=pred.and.odds$X2*pred.and.odds$IWD
+pred.and.odds$A=pred.and.odds$X3*pred.and.odds$IWA
+pred.and.odds$beton=max.col(pred.and.odds[,c("H","D","A")])
+pred.and.odds$maxprof=apply(pred.and.odds[,c("H","D","A")], 1, max)
+
+# for a profit margin of at least profmarg we look at how much we would have earned
+profmarg=1.25
+gamesbetted=pred.and.odds[pred.and.odds$maxprof>profmarg,]
+gamescorrect=gamesbetted[gamesbetted$beton==gamesbetted$label,]
+oddsmatrix=gamescorrect[,c('IWH','IWD','IWA')]
+revenue=rep(0,nrow(gamescorrect))
+for (i in 1:nrow(gamescorrect)){
+  revenue[i]=oddsmatrix[i,gamescorrect$beton[i]]
+}
+profit=sum(revenue)-nrow(gamesbetted)
+profitperc=sum(revenue)/nrow(gamesbetted)
+profitperc
+profit
+
+
 
 ### checking if between two prbabilities the fraction of correct predictions is the same
 LB=0.48
