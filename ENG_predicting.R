@@ -1,6 +1,6 @@
 setwd("D:/Het Project/Premier league/Voetbal-voorspellen")
 
-used.packages=c("xgboost","stringr","qlcMatrix","rBayesianOptimization","mailR","rJava","e1071")
+used.packages=c("xgboost","stringr","qlcMatrix","e1071")
 not.installed=!(used.packages %in% rownames(installed.packages()))
 if(length(used.packages[not.installed])>0){
   install.packages(used.packages[not.installed])
@@ -12,9 +12,6 @@ library("dplyr")    # for some data preperation
 library("stringr")
 library("DiagrammeR")
 library("qlcMatrix")
-library("rBayesianOptimization")
-library("mailR")
-library("rJava")
 
 if(!exists("foo", mode="function")) source("ENG_cleaningandpreparing.R")
 
@@ -48,7 +45,6 @@ n <- names(x_all)
 f <- as.formula(paste("~ -1 +", paste(n[!n %in% c("X","Date")], collapse = "+")))
 
 A <- model.matrix(f,x_all) 
-head(A)
 A=as.data.frame(A)
 x_featured=A[,c('HTP', 'ATP', 'HM1L', 'HM1W','HM1NM', 'HM2L', 'HM2W','HM2NM', 'HM3L', 'HM3W','HM3NM',
                 'AM1L','AM1NM', 'AM1W', 'AM2L', 'AM2W','AM2NM', 'AM3L', 'AM3W','AM3NM', 'HTGD', 'ATGD',
@@ -112,18 +108,5 @@ test_prediction$PredictedOutcome=ifelse(test_prediction$max_prob==1,test_predict
 test_prediction$Homeodd=1/test_prediction$Home
 test_prediction$Drawodd=1/test_prediction$Draw
 test_prediction$Awayodd=1/test_prediction$Away
-                                                        
-print(test_prediction)
 
 write.csv(test_prediction,paste("prediction_MW",(nrow(dataf) %% 380)/10,"_",tail(dataf$Date,n=1),".csv",sep = ""))
-
-# send.mail(from = "r.notification.kdh@gmail.com",
-#           to = "kasperde@hotmail.com",
-#           subject = "Inkoop advies",
-#           body = "Inkoop moment is gesignaleerd",
-#           smtp = list(host.name = "smtp.gmail.com", port = 465, user.name = "r.notification.kdh", passwd = "gle1992Dwizgh?!", SSL = TRUE),
-#           authenticate = TRUE,
-#           send = TRUE)
-
-
-
