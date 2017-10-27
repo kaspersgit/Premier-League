@@ -1,4 +1,4 @@
-# scraping premier league distances from http://www.sportmapworld.com/distance
+# scraping premier league market values from transfermarkt.co.uk
 library(XML)
 library(RCurl)
 library(httr)

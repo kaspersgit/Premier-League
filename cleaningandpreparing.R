@@ -1,4 +1,4 @@
-preparation <- function(){
+preparation <- function(include_odds){
   raw.data.1 = read.csv('2000.csv')
   raw.data.2 = read.csv('2001.csv')
   raw.data.3 = read.csv('2002.csv')
@@ -102,12 +102,14 @@ preparation <- function(){
   raw.data.17$Date = as.Date(raw.data.17$Date, '%d/%m/%y')
   raw.data.18$Date = as.Date(raw.data.18$Date, '%d/%m/%y')
   
-  
+  if (include_odds){
+    ## to include the odds of InterWetten
+    columns_req = c('Date','HomeTeam','AwayTeam','FTHG','FTAG','FTR','HS','AS','HST','AST','IWH','IWD','IWA')
+  }else{
   # columns connected to gameplay and clean data from NA's
   columns_req = c('Date','HomeTeam','AwayTeam','FTHG','FTAG','FTR','HS','AS','HST','AST')
+  }
   
-  ## to include the odds of InterWetten
-  # columns_req = c('Date','HomeTeam','AwayTeam','FTHG','FTAG','FTR','HS','AS','HST','AST','IWH','IWD','IWA')
   
   playing_statistics_1 = na.omit(raw.data.1[columns_req])                      
   playing_statistics_2 = na.omit(raw.data.2[columns_req])
@@ -521,15 +523,21 @@ preparation <- function(){
   playing_statistics_17 = add_form_df(playing_statistics_17)    
   playing_statistics_18 = add_form_df(playing_statistics_18)
   
+  if (include_odds){
+    ## to include the odds of InterWetten
+    # Rearranging columns with InterWetten odds
+    cols = c('Date', 'HomeTeam', 'AwayTeam', 'FTHG', 'FTAG', 'FTR', 'HTGS', 'ATGS', 'HTGC', 'ATGC', 'HTP', 'ATP','HTS','ATS','HTST','ATST', 'HM1', 'HM2', 'HM3',
+             'HM4', 'HM5', 'AM1', 'AM2', 'AM3', 'AM4', 'AM5','IWH', 'IWD', 'IWA')
+    
+  }else{ 
+    # Rearranging columns
+    cols = c('Date', 'HomeTeam', 'AwayTeam', 'FTHG', 'FTAG', 'FTR', 'HTGS', 'ATGS', 'HTGC', 'ATGC', 'HTP', 'ATP','HTS','ATS','HTST','ATST', 'HM1', 'HM2', 'HM3',
+             'HM4', 'HM5', 'AM1', 'AM2', 'AM3', 'AM4', 'AM5')
+  }
   
-  # Rearranging columns with InterWetten odds
-  # cols = c('Date', 'HomeTeam', 'AwayTeam', 'FTHG', 'FTAG', 'FTR', 'HTGS', 'ATGS', 'HTGC', 'ATGC', 'HTP', 'ATP','HTS','ATS','HTST','ATST', 'HM1', 'HM2', 'HM3',
-  #         'HM4', 'HM5', 'AM1', 'AM2', 'AM3', 'AM4', 'AM5','IWH', 'IWD', 'IWA')
   
-  # Rearranging columns
-  cols = c('Date', 'HomeTeam', 'AwayTeam', 'FTHG', 'FTAG', 'FTR', 'HTGS', 'ATGS', 'HTGC', 'ATGC', 'HTP', 'ATP','HTS','ATS','HTST','ATST', 'HM1', 'HM2', 'HM3',
-           'HM4', 'HM5', 'AM1', 'AM2', 'AM3', 'AM4', 'AM5')
-  
+
+ 
   playing_statistics_1 = playing_statistics_1[cols]
   playing_statistics_2 = playing_statistics_2[cols]
   playing_statistics_3 = playing_statistics_3[cols]

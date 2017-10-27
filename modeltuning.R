@@ -14,6 +14,8 @@ library("DiagrammeR")
 library("rBayesianOptimization")
 library("qlcMatrix")
 
+preparation(TRUE)
+
 datac=read.csv("final_dataset.csv")
 
 # excluding non played matches
@@ -47,15 +49,15 @@ head(A)
 A=as.data.frame(A)
 
 # with interwetten columns
+x_featured=A[,c('HTP', 'ATP', 'HM1L', 'HM1W','HM1NM', 'HM2L', 'HM2W','HM2NM', 
+                'AM1L','AM1NM', 'AM1W', 'AM2L', 'AM2W','AM2NM', 'AM3L', 'AM3W','AM3NM', 'HTGD', 'ATGD',
+                "DiffPts", 'DiffFormPts', 'DiffLP','Distance','AwayAvgAge','HomeAvgAge','HomeAvgMV','AwayAvgMV',
+                'HTS','ATS','HTST','ATST','IWH','IWD','IWA')]
+
 # x_featured=A[,c('HTP', 'ATP', 'HM1L', 'HM1W','HM1NM', 'HM2L', 'HM2W','HM2NM', 'HM3L', 'HM3W','HM3NM',
 #                 'AM1L','AM1NM', 'AM1W', 'AM2L', 'AM2W','AM2NM', 'AM3L', 'AM3W','AM3NM', 'HTGD', 'ATGD',
 #                 "DiffPts", 'DiffFormPts', 'DiffLP','Distance','AwayAvgAge','HomeAvgAge','HomeAvgMV','AwayAvgMV',
-#                 'HTS','ATS','HTST','ATST','IWH','IWD','IWA')]
-
-x_featured=A[,c('HTP', 'ATP', 'HM1L', 'HM1W','HM1NM', 'HM2L', 'HM2W','HM2NM', 'HM3L', 'HM3W','HM3NM',
-                'AM1L','AM1NM', 'AM1W', 'AM2L', 'AM2W','AM2NM', 'AM3L', 'AM3W','AM3NM', 'HTGD', 'ATGD',
-                "DiffPts", 'DiffFormPts', 'DiffLP','Distance','AwayAvgAge','HomeAvgAge','HomeAvgMV','AwayAvgMV',
-                'HTS','ATS','HTST','ATST')]
+#                 'HTS','ATS','HTST','ATST')]
 
 df=cbind(x_featured,y_all)
 
@@ -68,8 +70,8 @@ set.seed(999)
 # Make split index
 train_index <- sample(1:nrow(dat), nrow(dat)*0.75)
 # Full data set
-data_variables <- as.matrix(dat[,-which(names(dat) %in% c("FTRC"))]) # putting 'IWH','IWD','IWA' in the "FTRC" vector to work with interwetten odds
-# odds=dat[train_index,c('IWH','IWD','IWA')]
+data_variables <- as.matrix(dat[,-which(names(dat) %in% c("FTRC",'IWH','IWD','IWA'))]) # putting 'IWH','IWD','IWA' in the "FTRC" vector to work with interwetten odds
+odds=dat[train_index,c('IWH','IWD','IWA')]
 data_label <- dat[,"FTRC"]
 data_matrix <- xgb.DMatrix(data = as.matrix(dat), label = data_label)
 # split train data and make xgb.DMatrix
@@ -116,31 +118,55 @@ pred.and.odds$A=pred.and.odds$X3*pred.and.odds$IWA
 pred.and.odds$beton=max.col(pred.and.odds[,c("H","D","A")])
 pred.and.odds$maxprof=apply(pred.and.odds[,c("H","D","A")], 1, max)
 
-# for a profit margin of at least profmarg we look at how much we would have earned
-profmarg=1.25
-gamesbetted=pred.and.odds[pred.and.odds$maxprof>profmarg,]
-gamescorrect=gamesbetted[gamesbetted$beton==gamesbetted$label,]
-oddsmatrix=gamescorrect[,c('IWH','IWD','IWA')]
-revenue=rep(0,nrow(gamescorrect))
-for (i in 1:nrow(gamescorrect)){
-  revenue[i]=oddsmatrix[i,gamescorrect$beton[i]]
+for (i in 1:nrow(pred.and.odds)){
+  pred.and.odds$bet.prob[i] = pred.and.odds[i,pred.and.odds$beton[i]]
 }
-profit=sum(revenue)-nrow(gamesbetted)
-profitperc=sum(revenue)/nrow(gamesbetted)
-profitperc
-profit
+# for a profit margin of at least profmarg we look at how much we would have earned
+calc_prof <- function(profmarg,minprob,maxprob,wager){
+  gamesbetted=pred.and.odds[(pred.and.odds$maxprof>profmarg)&(pred.and.odds$bet.prob>minprob)&(pred.and.odds$bet.prob<maxprob),]
+  gamescorrect=gamesbetted[gamesbetted$beton==gamesbetted$label,]
+  oddsmatrix=gamescorrect[,c('IWH','IWD','IWA')]
+  revenue=rep(0,nrow(gamescorrect))
+  for (i in 1:nrow(gamescorrect)){
+    revenue[i]=oddsmatrix[i,gamescorrect$beton[i]]
+  }
+  profit1=(sum(revenue)-nrow(gamesbetted))*wager
+  profitperc1=(sum(revenue)/nrow(gamesbetted)-1)*100
+  
+  profit_x_odd=length(revenue)*wager-sum(wager/(gamesbetted$maxprof/gamesbetted$bet.prob))
+  profitperc_x_odd=((length(revenue)*wager)/sum(wager/(gamesbetted$maxprof/gamesbetted$bet.prob))-1)*100
+  
+  profit_x_odd.profmarg=sum(wager*gamescorrect$bet.prob*revenue)-sum(wager*gamesbetted$bet.prob)
+  profitperc_x_odd.profmarg=(sum(wager*gamescorrect$bet.prob*revenue)/sum(wager*gamesbetted$bet.prob)-1)*100
+  
+  return(cat("Betting summary\n",
+             "Bets won/placed: \t",nrow(gamescorrect),"/",nrow(gamesbetted),"\t",round(nrow(gamescorrect)/nrow(gamesbetted),digits = 2), "\n",
+             "Of total matches: \t",nrow(pred.and.odds),"\n\n",
+             "For different wager tactics\n",
+             "Profit percentage: \t",round(profitperc1,digits = 2),"%\n",
+             "Profit total: \t\t" ,profit1,"\n\n",
+             "(wager/odd):\n",
+             "Profit percentage \t",round(profitperc_x_odd,digits = 2),"%\n",
+             "Profit total \t\t",profit_x_odd,"\n\n",
+             "(wager/odd * profmarg)\n",
+             "Profit percentage\t",round(profitperc_x_odd.profmarg,digits = 2),"%\n",
+             "Profit total\t\t",profit_x_odd.profmarg))
+}
 
-
+# calculating the profit given the minimal profit margin, lower probability, higher probability and the wager amount
+calc_prof(1.1,0.33,0.66,20) # 1.09,0.33,0.67 give 13.13% profit, 1.1,0.60,0.67 give 27,46% profit
 
 ### checking if between two prbabilities the fraction of correct predictions is the same
-LB=0.7
-UB=0.8
-preds=OOF_prediction
-preds$high.prob=apply(preds[,c(1:3)],1,max)
-part.preds=preds[preds$high.prob>LB&preds$high.prob<UB,]
-fraction.correct=sum(part.preds$max_prob==part.preds$label)/nrow(part.preds)
-cat("For predictions with probability between ",100*LB,"% and ",100*UB,"%\n",
-    "the fraction that is correctly predicted is ",100*fraction.correct,"%",sep = "")
+check_prob -> function(LB,UB){
+  preds=OOF_prediction
+  preds$high.prob=apply(preds[,c(1:3)],1,max)
+  part.preds=preds[preds$high.prob>LB&preds$high.prob<UB,]
+  fraction.correct=sum(part.preds$max_prob==part.preds$label)/nrow(part.preds)
+  return(cat("For predictions with probability between ",100*LB,"% and ",100*UB,"%\n",
+      "the fraction that is correctly predicted is ",100*fraction.correct,"%",sep = ""))
+}
+
+check_prob(0.5,0.6)
 
 # confusion matrix, how many time the model confuses the classes
 idx=as.character(na.omit(factor(OOF_prediction$max_prob)))

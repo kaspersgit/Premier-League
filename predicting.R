@@ -19,7 +19,7 @@ library("rJava")
 if(!exists("foo", mode="function")) source("cleaningandpreparing.R")
 
 # import and prepare the data and eventually save it as csv
-preparation()
+preparation(FALSE)
 
 # download that csv for further use and prediction
 dataf=read.csv("final_dataset.csv")
@@ -35,13 +35,13 @@ cols = c('HTGD','ATGD','HTP','ATP','DiffLP','AwayAvgAge','HomeAvgAge','HomeAvgMV
 x_all[cols] = scale(x_all[cols])
 
 #last 3 matches for both sides
-x_all$HM3 = ifelse((x_all$HM3-x_all$HM2)==3,"W",ifelse((x_all$HM3-x_all$HM2)==1,"D",ifelse((x_all$HM3-x_all$HM2)==0&x_all$MW>1,"L","NM")))
+x_all$HM3 = ifelse((x_all$HM3-x_all$HM2)==3,"W",ifelse((x_all$HM3-x_all$HM2)==1,"D",ifelse((x_all$HM3-x_all$HM2)==0&x_all$MW>3,"L","NM")))
 x_all$HM2 = ifelse((x_all$HM2-x_all$HM1)==3,"W",ifelse((x_all$HM2-x_all$HM1)==1,"D",ifelse((x_all$HM2-x_all$HM1)==0&x_all$MW>2,"L","NM")))
-x_all$HM1 = ifelse(x_all$HM1==3,"W",ifelse(x_all$HM1==1,"D",ifelse((x_all$HM1)==0&x_all$MW>3,"L","NM")))
+x_all$HM1 = ifelse(x_all$HM1==3,"W",ifelse(x_all$HM1==1,"D",ifelse((x_all$HM1)==0&x_all$MW>1,"L","NM")))
 
-x_all$AM3 = ifelse((x_all$AM3-x_all$AM2)==3,"W",ifelse((x_all$AM3-x_all$AM2)==1,"D",ifelse((x_all$AM3-x_all$AM2)==0&x_all$MW>1,"L","NM")))
+x_all$AM3 = ifelse((x_all$AM3-x_all$AM2)==3,"W",ifelse((x_all$AM3-x_all$AM2)==1,"D",ifelse((x_all$AM3-x_all$AM2)==0&x_all$MW>3,"L","NM")))
 x_all$AM2 = ifelse((x_all$AM2-x_all$AM1)==3,"W",ifelse((x_all$AM2-x_all$AM1)==1,"D",ifelse((x_all$AM2-x_all$AM1)==0&x_all$MW>2,"L","NM")))
-x_all$AM1 = ifelse(x_all$AM1==3,"W",ifelse(x_all$AM1==1,"D",ifelse((x_all$AM1)==0&x_all$MW>3,"L","NM")))
+x_all$AM1 = ifelse(x_all$AM1==3,"W",ifelse(x_all$AM1==1,"D",ifelse((x_all$AM1)==0&x_all$MW>1,"L","NM")))
 
 # Change categorial columns into dummy columns
 n <- names(x_all)
@@ -53,8 +53,7 @@ A=as.data.frame(A)
 x_featured=A[,c('HTP', 'ATP', 'HM1L', 'HM1W','HM1NM', 'HM2L', 'HM2W','HM2NM', 'HM3L', 'HM3W','HM3NM',
                 'AM1L','AM1NM', 'AM1W', 'AM2L', 'AM2W','AM2NM', 'AM3L', 'AM3W','AM3NM', 'HTGD', 'ATGD',
                 "DiffPts", 'DiffFormPts', 'DiffLP','Distance','AwayAvgAge','HomeAvgAge','HomeAvgMV','AwayAvgMV',
-                'HTS','ATS',
-                'HTST','ATST')]
+                'HTS','ATS','HTST','ATST')]
 
 df=cbind(x_featured,y_all)
 
@@ -108,11 +107,11 @@ test_prediction <- matrix(test_pred, nrow = numberOfClasses,
 test_prediction[,c("Date","HomeTeam","AwayTeam")]=x_all[fixtures.coming,c("Date","HomeTeam","AwayTeam")]
 test_prediction$HomeTeam=as.character(test_prediction$HomeTeam)
 test_prediction$AwayTeam=as.character(test_prediction$AwayTeam)
+names(test_prediction)[c(1:3)]=c("Home","Draw","Away")
+test_prediction$PredictedOutcome=ifelse(test_prediction$max_prob==1,test_prediction$HomeTeam,ifelse(test_prediction$max_prob==3,test_prediction$AwayTeam,"Draw"))
 test_prediction$Homeodd=1/test_prediction$Home
 test_prediction$Drawodd=1/test_prediction$Draw
 test_prediction$Awayodd=1/test_prediction$Away
-names(test_prediction)[c(1:3)]=c("Home","Draw","Away")
-test_prediction$PredictedOutcome=ifelse(test_prediction$max_prob==1,test_prediction$HomeTeam,ifelse(test_prediction$max_prob==3,test_prediction$AwayTeam,"Draw"))
                                                         
 print(test_prediction)
 
