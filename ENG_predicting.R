@@ -109,4 +109,4 @@ test_prediction$Homeodd=1/test_prediction$Home
 test_prediction$Drawodd=1/test_prediction$Draw
 test_prediction$Awayodd=1/test_prediction$Away
 
-write.csv(test_prediction,paste("prediction_MW",(nrow(dataf) %% 380)/10,"_",tail(dataf$Date,n=1),".csv",sep = ""))
+write.csv(test_prediction,paste("predictions_per_MW/prediction_MW",(nrow(dataf) %% 380)/10,"_",tail(dataf$Date,n=1),".csv",sep = ""))
