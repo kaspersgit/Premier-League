@@ -16,13 +16,13 @@ library("rBayesianOptimization")
 library("mailR")
 library("rJava")
 
-if(!exists("foo", mode="function")) source("cleaningandpreparing.R")
+if(!exists("foo", mode="function")) source("ENG_cleaningandpreparing.R")
 
 # import and prepare the data and eventually save it as csv
 preparation(FALSE)
 
 # download that csv for further use and prediction
-dataf=read.csv("final_dataset.csv")
+dataf=read.csv("ENG_final_dataset.csv")
 
 # Separate into feature set and target variable
 #FTR = Full Time Result (H=Home Win, D=Draw, A=Away Win)

@@ -1,31 +1,31 @@
 preparation <- function(include_odds){
-  raw.data.1 = read.csv('2000.csv')
-  raw.data.2 = read.csv('2001.csv')
-  raw.data.3 = read.csv('2002.csv')
+  raw.data.1 = read.csv('historic_data/2000.csv')
+  raw.data.2 = read.csv('historic_data/2001.csv')
+  raw.data.3 = read.csv('historic_data/2002.csv')
     # Middlesbrough is written as Middlesboro in this file
     raw.data.3$HomeTeam=str_replace_all(raw.data.3$HomeTeam, fixed("Middlesboro"),"Middlesbrough")
     raw.data.3$AwayTeam=str_replace_all(raw.data.3$AwayTeam, fixed("Middlesboro"),"Middlesbrough")
-  raw.data.4 = read.csv('2003.csv')
-  raw.data.5 = read.csv('2004.csv')
-  raw.data.6 = read.csv('2005.csv')
-  raw.data.7 = read.csv('2006.csv')
-  raw.data.8 = read.csv('2007.csv')
-  raw.data.9 = read.csv('2008.csv')
-  raw.data.10 = read.csv('2009.csv')
-  raw.data.11 = read.csv('2010.csv')
-  raw.data.12 = read.csv('2011.csv')
-  raw.data.13 = read.csv('2012.csv')
-  raw.data.14 = read.csv('2013.csv')
-  raw.data.15 = read.csv('2014.csv')
-  raw.data.16 = read.csv('2015.csv')
-  raw.data.17 = read.csv('2016.csv')
+  raw.data.4 = read.csv('historic_data/2003.csv')
+  raw.data.5 = read.csv('historic_data/2004.csv')
+  raw.data.6 = read.csv('historic_data/2005.csv')
+  raw.data.7 = read.csv('historic_data/2006.csv')
+  raw.data.8 = read.csv('historic_data/2007.csv')
+  raw.data.9 = read.csv('historic_data/2008.csv')
+  raw.data.10 = read.csv('historic_data/2009.csv')
+  raw.data.11 = read.csv('historic_data/2010.csv')
+  raw.data.12 = read.csv('historic_data/2011.csv')
+  raw.data.13 = read.csv('historic_data/2012.csv')
+  raw.data.14 = read.csv('historic_data/2013.csv')
+  raw.data.15 = read.csv('historic_data/2014.csv')
+  raw.data.16 = read.csv('historic_data/2015.csv')
+  raw.data.17 = read.csv('historic_data/2016.csv')
   # get the latest available data 
   raw.data.18 = read.csv("http://www.football-data.co.uk/mmz4281/1718/E0.csv")
   
   n.games=nrow(raw.data.18)
   # using the PL program to fill in the matches for the next match week
   # taken from http://dedicatedexcel.com/uk-football-fixtures-2017-18-in-excel-format/
-  next.matches=read.csv("fixtures_2017_2018.csv", sep = ";")
+  next.matches=read.csv("yearly_updated_data/fixtures_2017_2018.csv", sep = ";")
   next.matches=next.matches[c((n.games+1):(n.games+10)),]
   fixtures=as.data.frame(matrix(rep(0,ncol(raw.data.18)*10),nrow=10))
   names(fixtures)=names(raw.data.18)
@@ -558,7 +558,7 @@ preparation <- function(include_odds){
   playing_statistics_18 = playing_statistics_18[cols]
   
   #Get Last Year's Position as also an independent variable:
-  Standings = read.csv("EPLStandings.csv", sep = ";")
+  Standings = read.csv("yearly_updated_data/EPLStandings.csv", sep = ";")
   Standings[,1]=str_replace_all(Standings[,1], fixed(" "), "")
   rownames(Standings)=Standings[,1]
   Standings=Standings[,-1]
@@ -598,7 +598,7 @@ preparation <- function(include_odds){
   playing_statistics_18 = get_last(playing_statistics_18, Standings, "X2017")
   
   #Get average age as also an independent variable:
-  AvgAge = read.csv("AvgAge.csv", sep = ",")
+  AvgAge = read.csv("yearly_updated_data/AvgAge.csv", sep = ",")
   AvgAge[,1]=str_replace_all(AvgAge[,1], fixed(" "), "")
   rownames(AvgAge)=AvgAge[,1]
   AvgAge=AvgAge[,-1]
@@ -637,7 +637,7 @@ preparation <- function(include_odds){
   playing_statistics_18 = get_AvgAge(playing_statistics_18, AvgAge, "X2017")
   
   #Get average age as also an independent variable:
-  AvgMV = read.csv("AvgMV.csv", sep = ";")
+  AvgMV = read.csv("yearly_updated_data/AvgMV.csv", sep = ";")
   AvgMV[,1]=str_replace_all(AvgMV[,1], fixed(" "), "")
   rownames(AvgMV)=AvgMV[,1]
   AvgMV=AvgMV[,-1]
@@ -725,7 +725,7 @@ preparation <- function(include_odds){
                        playing_statistics_18)
   
   ### Add distance between clubs playing grounds (air distance in km) 
-  distances=read.csv("distances.csv",row.names = 1)
+  distances=read.csv("yearly_updated_data/distances.csv",row.names = 1)
   colnames(distances)=str_replace_all(colnames(distances), fixed("."), "")
   rownames(distances)=str_replace_all(rownames(distances), fixed(" "), "")
   
@@ -814,5 +814,5 @@ preparation <- function(include_odds){
     playing_stat[col] = playing_stat[col] / playing_stat$MW
   }
   
-  write.csv(playing_stat,"final_dataset.csv")
+  write.csv(playing_stat,"ENG_final_dataset.csv")
 }
