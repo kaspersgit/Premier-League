@@ -16,7 +16,7 @@ library("qlcMatrix")
 if(!exists("foo", mode="function")) source("ENG_cleaningandpreparing.R")
 
 # import and prepare the data and eventually save it as csv
-preparation(FALSE)
+ENG_preparation(FALSE)
 
 # download that csv for further use and prediction
 dataf=read.csv("ENG_final_dataset.csv")
@@ -28,7 +28,7 @@ y_all = dataf['FTR']
 
 #Standardising the data
 #Center to the mean and component wise scale to unit variance.
-cols = c('HTGD','ATGD','HTP','ATP','DiffLP','AwayAvgAge','HomeAvgAge','HomeAvgMV','AwayAvgMV','HTS','ATS','HTST','ATST')
+cols = c('HTGD','ATGD','HTP','ATP','DiffLP','Distance','AwayAvgAge','HomeAvgAge','HomeAvgMV','AwayAvgMV','HTS','ATS','HTST','ATST')
 x_all[cols] = scale(x_all[cols])
 
 #last 3 matches for both sides
