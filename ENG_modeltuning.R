@@ -182,7 +182,7 @@ calc_prof <- function(minprofmarg,maxprofmarg,minprob,maxprob,bet_on_outcomes,wa
 }
 
 # calculating the profit given the minimal profit margin, lower probability, higher probability and the wager amount
-calc_prof(minprofmarg=1.1,maxprofmarg=1.7,minprob=0.35,maxprob=0.9,c(1,3),wager=1,n.periods=10) 
+calc_prof(minprofmarg=1.1,maxprofmarg=1.7,minprob=0.35,maxprob=0.9,c(1,3),wager=1,n.periods=35) 
 
 ### checking if between two prbabilities the fraction of correct predictions is the same
 check_prob <- function(LB,UB){
