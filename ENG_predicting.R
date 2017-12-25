@@ -1,4 +1,4 @@
-setwd("D:/Het Project/Voetbal predictions/Premier League")
+setwd("D:/Het Project/Voetbal predictions/Premier-League")
 
 used.packages=c("xgboost","stringr","qlcMatrix","e1071")
 not.installed=!(used.packages %in% rownames(installed.packages()))
@@ -28,7 +28,7 @@ y_all = dataf['FTR']
 
 #Standardising the data
 #Center to the mean and component wise scale to unit variance.
-cols = c('HTGD','ATGD','HTP','ATP','DiffLP','Distance','AwayAvgAge','HomeAvgAge','HomeAvgMV','AwayAvgMV','HTS','ATS','HTST','ATST')
+cols = c('HTGD','ATGD','HTP','ATP','DiffLP','Distance','AwayAvgAge','HomeAvgAge','HomeAvgMV','AwayAvgMV','HTS','ATS','HTST','ATST','HTpoints3','HTpoints5','ATpoints3','ATpoints5')
 x_all[cols] = scale(x_all[cols])
 
 #last 3 matches for both sides
@@ -46,10 +46,9 @@ f <- as.formula(paste("~ -1 +", paste(n[!n %in% c("X","Date")], collapse = "+"))
 
 A <- model.matrix(f,x_all) 
 A=as.data.frame(A)
-x_featured=A[,c('HTP', 'ATP', 'HM1L', 'HM1W','HM1NM', 'HM2L', 'HM2W','HM2NM', 'HM3L', 'HM3W','HM3NM',
-                'AM1L','AM1NM', 'AM1W', 'AM2L', 'AM2W','AM2NM', 'AM3L', 'AM3W','AM3NM', 'HTGD', 'ATGD',
+x_featured=A[,c('HTP', 'ATP', 'HM1L', 'HM1W','HM1NM', 'HTGD', 'ATGD',
                 "DiffPts", 'DiffFormPts', 'DiffLP','Distance','AwayAvgAge','HomeAvgAge','HomeAvgMV','AwayAvgMV',
-                'HTS','ATS','HTST','ATST')]
+                'HTS','ATS','HTST','ATST','HTpoints3','HTpoints5','ATpoints3','ATpoints5')]
 
 df=cbind(x_featured,y_all)
 

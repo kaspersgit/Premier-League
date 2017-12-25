@@ -1,4 +1,4 @@
-setwd("D:/Het Project/Premier league/Voetbal-voorspellen")
+setwd("D:/Het Project/Voetbal predictions/Premier-League")
 
 used.packages=c("xgboost","archdata","caret","DiagrammeR","rBayesianOptimization")
 not.installed=!(used.packages %in% rownames(installed.packages()))
@@ -28,7 +28,7 @@ y_all = dataf['FTR']
 
 #Standardising the data
 #Center to the mean and component wise scale to unit variance.
-cols = c('HTGD','ATGD','HTP','ATP','DiffLP','Distance','AwayAvgAge','HomeAvgAge','HomeAvgMV','AwayAvgMV','HTS','ATS','HTST','ATST')
+cols = c('HTGD','ATGD','HTP','ATP','DiffLP','Distance','AwayAvgAge','HomeAvgAge','HomeAvgMV','AwayAvgMV','HTS','ATS','HTST','ATST','HTpoints3','HTpoints5','ATpoints3','ATpoints5')
 x_all[cols] = scale(x_all[cols])
 
 #last 3 matches for both sides
@@ -50,10 +50,9 @@ A=as.data.frame(A)
 A$matchnr.=c(1:nrow(A))
 
 # with interwetten columns
-x_featured=A[,c('HTP', 'ATP', 'HM1L', 'HM1W','HM1NM', 'HM2L', 'HM2W','HM2NM', 
-                'AM1L','AM1NM', 'AM1W', 'AM2L', 'AM2W','AM2NM', 'HTGD', 'ATGD',
+x_featured=A[,c('HTP', 'ATP', 'HM1L', 'HM1W','HM1NM', 'HTGD', 'ATGD',
                 "DiffPts", 'DiffFormPts', 'DiffLP','Distance','AwayAvgAge','HomeAvgAge','HomeAvgMV','AwayAvgMV',
-                'HTS','ATS','HTST','ATST','IWH','IWD','IWA','matchnr.','MW')]
+                'HTS','ATS','HTST','ATST','IWH','IWD','IWA','matchnr.','MW','HTpoints3','HTpoints5','ATpoints3','ATpoints5')]
 
 # x_featured=A[,c('HTP', 'ATP', 'HM1L', 'HM1W','HM1NM', 'HM2L', 'HM2W','HM2NM', 'HM3L', 'HM3W','HM3NM',
 #                 'AM1L','AM1NM', 'AM1W', 'AM2L', 'AM2W','AM2NM', 'AM3L', 'AM3W','AM3NM', 'HTGD', 'ATGD',
@@ -182,7 +181,7 @@ calc_prof <- function(minprofmarg,maxprofmarg,minprob,maxprob,bet_on_outcomes,wa
 }
 
 # calculating the profit given the minimal profit margin, lower probability, higher probability and the wager amount
-calc_prof(minprofmarg=1.1,maxprofmarg=1.7,minprob=0.35,maxprob=0.9,c(1,3),wager=1,n.periods=35) 
+calc_prof(minprofmarg=1.1,maxprofmarg=2,minprob=0.1,maxprob=0.9,c(1,3),wager=1,n.periods=15) 
 
 ### checking if between two prbabilities the fraction of correct predictions is the same
 check_prob <- function(LB,UB){

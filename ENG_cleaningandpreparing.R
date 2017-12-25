@@ -744,50 +744,13 @@ ENG_preparation <- function(include_odds){
   playing_stat=get_distance(playing_stat)
   
   ####################################
-  # Identify Win/Loss Streaks if any.
-  get_3game_ws=function(string){
-    for (i in 1:nrow(string)){
-      if (string == 9){
-        return(1)
-      }else{
-        return(0)
-      }
-    }
-  }
+  # Identify points last 3/5  matches
   
-  get_5game_ws=function(string){
-    if (string == 15){
-      return(1)
-    }else{
-      return(0)
-    }
-  }
+  playing_stat['HTpoints3'] = playing_stat["HM3"]
+  playing_stat['HTpoints5'] = playing_stat["HM5"]
   
-  get_3game_ls=function(string){
-    if (string == 0){
-      return(1)
-    }else{
-      return(0)
-    }
-  }
-  
-  get_5game_ls=function(string){
-    if (string == '0'){
-      return(1)
-    }else{
-      return(0)
-    }
-  }
-  
-  playing_stat['HTWinStreak3'] = ifelse(playing_stat["HM3"]==9&playing_stat$MW>3,1,0)
-  playing_stat['HTWinStreak5'] = ifelse(playing_stat["HM5"]==15&playing_stat$MW>5,1,0)
-  playing_stat['HTLossStreak3'] = ifelse(playing_stat["HM3"]==0&playing_stat$MW>3,1,0)
-  playing_stat['HTLossStreak5'] = ifelse(playing_stat["HM5"]==0&playing_stat$MW>5,1,0)
-  
-  playing_stat['ATWinStreak3'] = ifelse(playing_stat["AM3"]==9&playing_stat$MW>3,1,0)
-  playing_stat['ATWinStreak5'] = ifelse(playing_stat["AM5"]==15&playing_stat$MW>5,1,0)
-  playing_stat['ATLossStreak3'] = ifelse(playing_stat["AM3"]==0&playing_stat$MW>3,1,0)
-  playing_stat['ATLossStreak5'] = ifelse(playing_stat["AM5"]==0&playing_stat$MW>5,1,0)
+  playing_stat['ATpoints3'] = playing_stat["AM3"]
+  playing_stat['ATpoints5'] = playing_stat["AM5"]
   
   # Get Goal Difference
   playing_stat['HTGD'] = playing_stat['HTGS'] - playing_stat['HTGC']
@@ -804,6 +767,7 @@ ENG_preparation <- function(include_odds){
     return(HM5max-AM5max)
     }
   playing_stat['DiffFormPts'] = diff_form(playing_stat)
+  
   
   # Diff in last year positions
   playing_stat['DiffLP'] = playing_stat['HomeTeamLP'] - playing_stat['AwayTeamLP']
