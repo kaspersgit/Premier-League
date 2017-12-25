@@ -800,7 +800,7 @@ ENG_preparation <- function(include_odds){
   playing_stat['DiffLP'] = playing_stat['HomeTeamLP'] - playing_stat['AwayTeamLP']
   
   # Scale DiffPts , DiffFormPts, HTGD, ATGD by Matchweek.
-  cols = c('HTGD','ATGD','DiffPts','DiffFormPts_1','DiffFormPts_3','DiffFormPts_5','DiffFormPts_10','DiffFormPts_20','HTP','ATP','HTS','ATS','HTST','ATST')
+  cols = c('HTGD','ATGD','DiffPts','HTP','ATP','HTS','ATS','HTST','ATST')
   
   for (col in cols){
     playing_stat[col] = playing_stat[col] / playing_stat$MW
