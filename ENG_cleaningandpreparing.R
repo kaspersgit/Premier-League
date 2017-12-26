@@ -637,19 +637,19 @@ ENG_preparation <- function(include_odds){
   
   # Combining to one dataset
   playing_stat = rbind(playing_statistics_6,
-                            playing_statistics_7,
-                            playing_statistics_8,
-                            playing_statistics_9,
-                            playing_statistics_10,
-                            playing_statistics_11,
-                            playing_statistics_12,
-                            playing_statistics_13,
-                            playing_statistics_14,
-                            playing_statistics_15,
-                            playing_statistics_16,
-                            playing_statistics_17,
-                       playing_statistics_18)
-  
+                        playing_statistics_7,
+                        playing_statistics_8,
+                        playing_statistics_9,
+                        playing_statistics_10,
+                        playing_statistics_11,
+                        playing_statistics_12,
+                        playing_statistics_13,
+                        playing_statistics_14,
+                        playing_statistics_15,
+                        playing_statistics_16,
+                        playing_statistics_17,
+                        playing_statistics_18)
+
   # Form defined as result of the last 5 games
   get_form=function(playing_stat,num){
     form = get_points_gained(playing_stat)
@@ -657,11 +657,7 @@ ENG_preparation <- function(include_odds){
     n_teams = length(unique(playing_stat$HomeTeam))
     n_rounds = nrow(playing_stat)/(n_teams/2)
     for (i in (num+1):(n_rounds)){
-      # j = 1
-      # if(j < (num+1)){
       form_final[,i] = form[,i]-form[,i-min(num,i+1)]
-      #   j =  j + 1  
-      
     }
     return(form_final)
   }
@@ -671,8 +667,8 @@ ENG_preparation <- function(include_odds){
     n_teams = length(unique(playing_stat$HomeTeam))
     n_rounds = nrow(playing_stat)/(n.teams/2)
     
-    h=vector(mode="character",nrow(playing_stat))
-    a=vector(mode="character",nrow(playing_stat))
+    h=vector(mode="numeric",nrow(playing_stat))
+    a=vector(mode="numeric",nrow(playing_stat))
     for (i in 1:(num*(n.teams/2))){
       h[i] = 0  # since form is not available for n MW (n*10)
       a[i] = 0 
@@ -712,8 +708,38 @@ ENG_preparation <- function(include_odds){
     return(playing_statistics)
   }
   
-  # Make changes to df
+  # adding form of last match in same situation (home/away)
+  add_form_same_venue = function(playing_statistics){
+    
+    hmh1=vector(mode="numeric",nrow(playing_stat))
+    ama1=vector(mode="numeric",nrow(playing_stat))
+    
+    for (i in (n.teams/2+1):nrow(playing_statistics)){
+      home=playing_statistics$HomeTeam[i]
+      away=playing_statistics$AwayTeam[i]
+      
+      # subset data until the game, so it is easier to get the last game from this team
+      hist_data = playing_statistics[1:i,]
+      
+      home_last_result=hist_data$FTR[tail(which(hist_data$HomeTeam==home),2)[1]]
+      away_last_result=hist_data$FTR[tail(which(hist_data$AwayTeam==away),2)[1]]
+      
+      hmh1[i]=ifelse(home_last_result=='H',3,ifelse(home_last_result=='D',1,0))
+      ama1[i]=ifelse(away_last_result=='A',3,ifelse(away_last_result=='D',1,0))
+      
+    }
+    playing_statistics['HMH1']=hmh1
+    playing_statistics['AMA1']=ama1
+    
+    return(playing_statistics)
+    
+  }
+  
+  # Add points from last 1/3/5/10 and 20 games
   playing_stat = add_form_df(playing_stat)
+  
+  # Add points from last match on same venue situation (home/away)
+  playing_stat = add_form_same_venue(playing_stat)
   
   ### Add distance between clubs playing grounds (air distance in km) 
   distances=read.csv("yearly_updated_data/distances.csv",row.names = 1)
@@ -733,68 +759,12 @@ ENG_preparation <- function(include_odds){
   
   playing_stat=get_distance(playing_stat)
   
-  ####################################
-  # Identify points last 3/5  matches
-  
-  playing_stat['HTpoints3'] = playing_stat["HM3"]
-  playing_stat['HTpoints5'] = playing_stat["HM5"]
-  
-  playing_stat['ATpoints3'] = playing_stat["AM3"]
-  playing_stat['ATpoints5'] = playing_stat["AM5"]
-  
   # Get Goal Difference
   playing_stat['HTGD'] = playing_stat['HTGS'] - playing_stat['HTGC']
   playing_stat['ATGD'] = playing_stat['ATGS'] - playing_stat['ATGC']
   
   # Diff in points
   playing_stat['DiffPts'] = playing_stat['HTP'] - playing_stat['ATP']
-  
-  diff_form_1=function(playing_stat){
-    HM1=apply(cbind(playing_stat['HM1']),1,max)
-    AM1=apply(cbind(playing_stat['AM1']),1,max)
-    HM1=as.numeric(HM1)
-    AM1=as.numeric(AM1)
-    return(HM1-AM1)
-  }
-  
-  diff_form_3=function(playing_stat){
-    HM3max=apply(cbind(playing_stat['HM3'],playing_stat['HM2'],playing_stat['HM1']),1,max)
-    AM3max=apply(cbind(playing_stat['AM3'],playing_stat['AM2'],playing_stat['AM1']),1,max)
-    HM3max=as.numeric(HM3max)
-    AM3max=as.numeric(AM3max)
-    return(HM3max-AM3max)
-  }
-  
-  diff_form_5=function(playing_stat){
-    HM5max=apply(cbind(playing_stat['HM5'],playing_stat['HM4'],playing_stat['HM3'],playing_stat['HM2'],playing_stat['HM1']),1,max)
-    AM5max=apply(cbind(playing_stat['AM5'],playing_stat['AM4'],playing_stat['AM3'],playing_stat['AM2'],playing_stat['AM1']),1,max)
-    HM5max=as.numeric(HM5max)
-    AM5max=as.numeric(AM5max)
-    return(HM5max-AM5max)
-  }
-  
-  diff_form_10=function(playing_stat){
-    HM10max=apply(cbind(playing_stat['HM10'],playing_stat['HM5'],playing_stat['HM4'],playing_stat['HM3'],playing_stat['HM2'],playing_stat['HM1']),1,max)
-    AM10max=apply(cbind(playing_stat['AM10'],playing_stat['AM5'],playing_stat['AM4'],playing_stat['AM3'],playing_stat['AM2'],playing_stat['AM1']),1,max)
-    HM10max=as.numeric(HM10max)
-    AM10max=as.numeric(AM10max)
-    return(HM10max-AM10max)
-  }
-  
-  diff_form_20=function(playing_stat){
-    HM20max=apply(cbind(playing_stat['HM20'],playing_stat['HM10'],playing_stat['HM5'],playing_stat['HM4'],playing_stat['HM3'],playing_stat['HM2'],playing_stat['HM1']),1,max)
-    AM20max=apply(cbind(playing_stat['AM20'],playing_stat['AM10'],playing_stat['AM5'],playing_stat['AM4'],playing_stat['AM3'],playing_stat['AM2'],playing_stat['AM1']),1,max)
-    HM20max=as.numeric(HM20max)
-    AM20max=as.numeric(AM20max)
-    return(HM20max-AM20max)
-  }
-  
-  playing_stat['DiffFormPts_1'] = diff_form_1(playing_stat)
-  playing_stat['DiffFormPts_3'] = diff_form_3(playing_stat)
-  playing_stat['DiffFormPts_5'] = diff_form_5(playing_stat)
-  playing_stat['DiffFormPts_10'] = diff_form_10(playing_stat)
-  playing_stat['DiffFormPts_20'] = diff_form_20(playing_stat)
-  
   
   # Diff in last year positions
   playing_stat['DiffLP'] = playing_stat['HomeTeamLP'] - playing_stat['AwayTeamLP']
