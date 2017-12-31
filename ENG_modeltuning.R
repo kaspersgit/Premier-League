@@ -28,42 +28,24 @@ y_all = dataf['FTR']
 
 #Standardising the data
 #Center to the mean and component wise scale to unit variance.
-cols = c('HTGD','ATGD','HTP','ATP','DiffLP','Distance','AwayAvgAge','HomeAvgAge','HomeAvgMV','AwayAvgMV','HTS','ATS','HTST','ATST','DiffFormPts_1','DiffFormPts_5','DiffFormPts_10')
+cols = c('HTGD','ATGD','HTP','ATP','DiffLP','Distance','AwayAvgAge','HomeAvgAge','HomeAvgMV','AwayAvgMV','HTS','ATS','HTST','ATST','HM3','AM3','HM5','AM5','HM10','AM10','HMH1','AMA1')
 x_all[cols] = scale(x_all[cols])
 
-#last 3 matches for both sides
-x_all$HM3 = ifelse((x_all$HM3-x_all$HM2)==3,"W",ifelse((x_all$HM3-x_all$HM2)==1,"D",ifelse((x_all$HM3-x_all$HM2)==0&x_all$MW>3,"L","NM")))
-x_all$HM2 = ifelse((x_all$HM2-x_all$HM1)==3,"W",ifelse((x_all$HM2-x_all$HM1)==1,"D",ifelse((x_all$HM2-x_all$HM1)==0&x_all$MW>2,"L","NM")))
-x_all$HM1 = ifelse(x_all$HM1==3,"W",ifelse(x_all$HM1==1,"D",ifelse((x_all$HM1)==0&x_all$MW>1,"L","NM")))
-
-x_all$AM3 = ifelse((x_all$AM3-x_all$AM2)==3,"W",ifelse((x_all$AM3-x_all$AM2)==1,"D",ifelse((x_all$AM3-x_all$AM2)==0&x_all$MW>3,"L","NM")))
-x_all$AM2 = ifelse((x_all$AM2-x_all$AM1)==3,"W",ifelse((x_all$AM2-x_all$AM1)==1,"D",ifelse((x_all$AM2-x_all$AM1)==0&x_all$MW>2,"L","NM")))
-x_all$AM1 = ifelse(x_all$AM1==3,"W",ifelse(x_all$AM1==1,"D",ifelse((x_all$AM1)==0&x_all$MW>1,"L","NM")))
-
-# Change categorial columns into dummy columns
-n <- names(x_all)
-f <- as.formula(paste("~ -1 +", paste(n[!n %in% c("X","Date")], collapse = "+")))
-
-A <- model.matrix(f,x_all) 
-head(A)
-A=as.data.frame(A)
-A$matchnr.=c(1:nrow(A))
+x_all$matchnr.=c(1:nrow(x_all))
 
 # with interwetten columns
-x_featured=A[,c('HTP', 'ATP','HTGD', 'ATGD',
-                "DiffPts",'DiffFormPts_1','DiffFormPts_5','DiffFormPts_10', 
+x_featured=x_all[,c('HTP', 'ATP','HTGD', 'ATGD',
+                "DiffPts",'HM3','AM3','HM5','AM5','HM10','AM10','HMH1','AMA1', 
                 'DiffLP','Distance','AwayAvgAge','HomeAvgAge','HomeAvgMV','AwayAvgMV',
                 'HTS','ATS','HTST','ATST','IWH','IWD','IWA','matchnr.','MW')]
 
-# x_featured=A[,c('HTP', 'ATP', 'HM1L', 'HM1W','HM1NM', 'HM2L', 'HM2W','HM2NM', 'HM3L', 'HM3W','HM3NM',
-#                 'AM1L','AM1NM', 'AM1W', 'AM2L', 'AM2W','AM2NM', 'AM3L', 'AM3W','AM3NM', 'HTGD', 'ATGD',
-#                 "DiffPts", 'DiffFormPts', 'DiffLP','Distance','AwayAvgAge','HomeAvgAge','HomeAvgMV','AwayAvgMV',
-#                 'HTS','ATS','HTST','ATST')]
-
 # to avoid having unequal amount of rows
-y_all=y_all$FTR[!is.na(x_all$IWA)]
+#x_featured=x_featured[!is.na(x_featured$IWA),]
+#y_all=y_all$FTR[!is.na(x_featured$IWA)]
 
 df=cbind(x_featured,y_all)
+
+df=df[!is.na(df$IWA),]
 
 colnames(df)[ncol(df)]="FTR"
 
@@ -91,16 +73,16 @@ test_label <- data_label[-train_index]
 test_matrix <- xgb.DMatrix(data = test_data, label = test_label)
 
 numberOfClasses <- length(unique(dat$FTRC))
-xgb_params <- list("max_depth"=3,"eta"=0.1,
-                   "colsample_bytree"=0.7,
+xgb_params <- list("max_depth"=3,"eta"=0.2,
+                   "colsample_bytree"=0.9,
                    "objective" = "multi:softprob",
                    "eval_metric" = "mlogloss",
                    "min_child_weight"=7,
-                   "subsample"=0.7,
+                   "subsample"=0.8,
                    "alpha"=0,
                    "lambda"=1,
                    "num_class" = numberOfClasses)
-nround    <- 40 # number of XGBoost rounds
+nround    <- 20 # number of XGBoost rounds
 cv.nfold  <- 10
 set.seed(999)
 # Fit cv.nfold * cv.nround XGB models and save OOF predictions
@@ -182,7 +164,7 @@ calc_prof <- function(minprofmarg,maxprofmarg,minprob,maxprob,bet_on_outcomes,wa
 }
 
 # calculating the profit given the minimal profit margin, lower probability, higher probability and the wager amount
-calc_prof(minprofmarg=1.1,maxprofmarg=1.8,minprob=0.2,maxprob=0.8,c(1,3),wager=1,n.periods=15) 
+calc_prof(minprofmarg=1.1,maxprofmarg=1.8,minprob=0.1,maxprob=0.75,c(1,3),wager=1,n.periods=15) 
 
 ### checking if between two prbabilities the fraction of correct predictions is the same
 check_prob <- function(LB,UB){

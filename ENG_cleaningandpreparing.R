@@ -363,7 +363,7 @@ ENG_preparation <- function(include_odds){
     # Create a dictionary with team names as keys
     teamnames=unique(playing_stat$HomeTeam)
     n_teams=length(teamnames)
-    n_rounds=nrow(playing_stat)/(n.teams/2)
+    n_rounds=ceiling(nrow(playing_stat)/(n.teams/2))
     pointsgained = matrix(rep(0,n_rounds*n_teams),ncol=n_rounds)
 
     HFTR.point=rep(0,nrow(playing_stat))
@@ -655,7 +655,7 @@ ENG_preparation <- function(include_odds){
     form = get_points_gained(playing_stat)
     form_final = form*0
     n_teams = length(unique(playing_stat$HomeTeam))
-    n_rounds = nrow(playing_stat)/(n_teams/2)
+    n_rounds = ceiling(nrow(playing_stat)/(n_teams/2))
     for (i in (num+1):(n_rounds)){
       form_final[,i] = form[,i]-form[,i-min(num,i+1)]
     }
@@ -665,7 +665,7 @@ ENG_preparation <- function(include_odds){
   add_form=function(playing_stat,num){
     form = get_form(playing_stat,num)
     n_teams = length(unique(playing_stat$HomeTeam))
-    n_rounds = nrow(playing_stat)/(n.teams/2)
+    n_rounds = ceiling(nrow(playing_stat)/(n.teams/2))
     
     h=vector(mode="numeric",nrow(playing_stat))
     a=vector(mode="numeric",nrow(playing_stat))
