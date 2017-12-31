@@ -35,8 +35,8 @@ x_all$matchnr.=c(1:nrow(x_all))
 
 # with interwetten columns
 x_featured=x_all[,c('HTP', 'ATP','HTGD', 'ATGD',
-                "DiffPts",'HM3','AM3','HM5','AM5','HM10','AM10','HMH1','AMA1', 
-                'DiffLP','Distance','AwayAvgAge','HomeAvgAge','HomeAvgMV','AwayAvgMV',
+                "DiffPts","DiffLP",'HM3','AM3','HM5','AM5','HM10','AM10','HMH1','AMA1', 
+                'Distance','AwayAvgAge','HomeAvgAge','HomeAvgMV','AwayAvgMV',
                 'HTS','ATS','HTST','ATST','IWH','IWD','IWA','matchnr.','MW')]
 
 # to avoid having unequal amount of rows
@@ -172,8 +172,8 @@ check_prob <- function(LB,UB){
   preds$high.prob=apply(preds[,c(1:3)],1,max)
   part.preds=preds[preds$high.prob>LB&preds$high.prob<UB,]
   fraction.correct=sum(part.preds$max_prob==part.preds$label)/nrow(part.preds)
-  return(list(cat("For predictions with probability between ",100*LB,"% and ",100*UB,"%\n",
-                  "the fraction that is correctly predicted is ",round(100*fraction.correct,digits = 2),"%",sep = ""),
+  return(list(cat("For predictions with probability between ",100*LB,"% and ",100*UB,"%",
+                  "the fraction that is correctly predicted is ",round(100*fraction.correct,digits = 2),"%\n",sep = ""),
               fraction.correct))
 }
 
@@ -211,7 +211,8 @@ confusionMatrix(test_prediction$label,
 # xgb.plot.tree(names(x_featured),bst_model,n_first_tree = 1)
 
 #plot importance of features
-importance_matrix = xgb.importance(feature_names = names(x_featured), model = bst_model)
+var_names=names(x_featured)[-which(names(x_featured) %in% c("IWH", "IWD", "IWA", "matchnr.") )]
+importance_matrix = xgb.importance(feature_names = var_names, model = bst_model)
 head(importance_matrix)
 gp = xgb.plot.importance(importance_matrix)
 print(gp)
