@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 setwd("D:/Het Project/Voetbal predictions/Premier-League")
+=======
+setwd("D:/Het Project/Premier league/Voetbal-voorspellen")
+>>>>>>> parent of 5ac169d... Made it more general
 
 used.packages=c("xgboost","stringr","qlcMatrix","e1071")
 not.installed=!(used.packages %in% rownames(installed.packages()))
