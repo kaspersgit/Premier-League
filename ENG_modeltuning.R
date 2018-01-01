@@ -82,7 +82,7 @@ xgb_params <- list("max_depth"=3,"eta"=0.2,
                    "alpha"=0,
                    "lambda"=1,
                    "num_class" = numberOfClasses)
-nround    <- 20 # number of XGBoost rounds
+nround    <- 25 # number of XGBoost rounds
 cv.nfold  <- 10
 set.seed(999)
 # Fit cv.nfold * cv.nround XGB models and save OOF predictions
@@ -164,7 +164,7 @@ calc_prof <- function(minprofmarg,maxprofmarg,minprob,maxprob,bet_on_outcomes,wa
 }
 
 # calculating the profit given the minimal profit margin, lower probability, higher probability and the wager amount
-calc_prof(minprofmarg=1.1,maxprofmarg=1.8,minprob=0.1,maxprob=0.75,c(1,3),wager=1,n.periods=15) 
+calc_prof(minprofmarg=1.1,maxprofmarg=1.8,minprob=0.33,maxprob=0.99,c(1),wager=1,n.periods=15) 
 
 ### checking if between two prbabilities the fraction of correct predictions is the same
 check_prob <- function(LB,UB){
