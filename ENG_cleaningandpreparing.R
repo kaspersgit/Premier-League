@@ -1,12 +1,9 @@
 ENG_preparation <- function(include_odds){
   raw.data.1 = read.csv('historic_data/2000.csv')
   raw.data.2 = read.csv('historic_data/2001.csv')
-  raw.data.3 = read.csv('historic_data/2002.csv')
-    # Middlesbrough is written as Middlesboro in this file
-    raw.data.3$HomeTeam=str_replace_all(raw.data.3$HomeTeam, fixed("Middlesboro"),"Middlesbrough")
-    raw.data.3$AwayTeam=str_replace_all(raw.data.3$AwayTeam, fixed("Middlesboro"),"Middlesbrough")
-  raw.data.4 = read.csv('historic_data/2003.csv')
-  raw.data.5 = read.csv('historic_data/2004.csv')
+  raw.data.3 = read.csv2('historic_data/2002.csv')
+  raw.data.4 = read.csv2('historic_data/2003.csv')
+  raw.data.5 = read.csv2('historic_data/2004.csv')
   raw.data.6 = read.csv('historic_data/2005.csv')
   raw.data.7 = read.csv('historic_data/2006.csv')
   raw.data.8 = read.csv('historic_data/2007.csv')
@@ -68,40 +65,6 @@ ENG_preparation <- function(include_odds){
   raw.data.17=delete.spaces(raw.data.17)
   raw.data.18=delete.spaces(raw.data.18)
   
-  parse_date = function(match.dates){
-    if (date == ""){
-      return("")
-    }else{
-      return(as.Date(match.dates, '%d/%m/%Y'))
-    } 
-  }
-  
-  
-  parse_date_other = function(match.dates){
-    if (date == ""){
-      return("")
-    }else{
-    return(as.Date(match.dates, '%d/%m/%Y'))
-  } }
-  
-  raw.data.1$Date = as.Date(raw.data.1$Date, '%d/%m/%y')
-  raw.data.2$Date = as.Date(raw.data.2$Date, '%d/%m/%y')
-  raw.data.3$Date = as.Date(raw.data.3$Date, '%d/%m/%Y')         # The date format for this dataset is different
-  raw.data.4$Date = as.Date(raw.data.4$Date, '%d/%m/%y')
-  raw.data.5$Date = as.Date(raw.data.5$Date, '%d/%m/%y')
-  raw.data.6$Date = as.Date(raw.data.6$Date, '%d/%m/%y')
-  raw.data.7$Date = as.Date(raw.data.7$Date, '%d/%m/%y')
-  raw.data.8$Date = as.Date(raw.data.8$Date, '%d/%m/%y')
-  raw.data.9$Date = as.Date(raw.data.9$Date, '%d/%m/%y')
-  raw.data.10$Date = as.Date(raw.data.10$Date, '%d/%m/%y')
-  raw.data.11$Date = as.Date(raw.data.11$Date, '%d/%m/%y')
-  raw.data.12$Date = as.Date(raw.data.12$Date, '%d/%m/%y')
-  raw.data.13$Date = as.Date(raw.data.13$Date, '%d/%m/%y')
-  raw.data.14$Date = as.Date(raw.data.14$Date, '%d/%m/%y')
-  raw.data.15$Date = as.Date(raw.data.15$Date, '%d/%m/%y')
-  raw.data.16$Date = as.Date(raw.data.16$Date, '%d/%m/%y')
-  raw.data.17$Date = as.Date(raw.data.17$Date, '%d/%m/%y')
-  raw.data.18$Date = as.Date(raw.data.18$Date, '%d/%m/%y')
   
   if (include_odds){
     ## to include the odds of InterWetten
