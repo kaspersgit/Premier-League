@@ -323,10 +323,6 @@ ENG_preparation <- function(include_odds){
   # get respective points
   get_points_gained=function(playing_stat){
     # Create a dictionary with team names as keys
-<<<<<<< HEAD
-    pointsgained = matrix(rep(0,2*380),ncol=38)
-=======
->>>>>>> Continous-form-add
     teamnames=unique(playing_stat$HomeTeam)
     n_teams=length(teamnames)
     n_rounds=ceiling(nrow(playing_stat)/(n.teams/2))
@@ -353,13 +349,10 @@ ENG_preparation <- function(include_odds){
     # this to keep the last n games form variable working, Determining matchweek is difficult as some games can be 
     # delayed and played in another matchweek. There is no back track to the original matchweek in this script.
     for (t in teamnames){
-<<<<<<< HEAD
-      HTP=matrix(rep(0,2*19),ncol = 2)
-      ATP=matrix(rep(0,2*19),ncol = 2)
-=======
+
       HTP=matrix(rep(0,2*n_rounds),ncol = 2)
       ATP=matrix(rep(0,2*n_rounds),ncol = 2)
->>>>>>> Continous-form-add
+
       for (i in 1:sum(playing_stat$HomeTeam==t)){
         w_round=ceiling(which(playing_stat$HomeTeam==t)[i]/10)
         HTP[w_round,]=t(c(HFTR.point[which(playing_stat$HomeTeam==t)[i]],playing_stat[which(playing_stat$HomeTeam==t)[i],c("Date")]))
@@ -421,85 +414,6 @@ ENG_preparation <- function(include_odds){
   playing_statistics_17 = get_agg_points(playing_statistics_17)
   playing_statistics_18 = get_agg_points(playing_statistics_18)
   
-<<<<<<< HEAD
-  get_form=function(playing_stat,num){
-    form = get_points_gained(playing_stat)
-    form_final = form*0
-    for (i in (num+1):38){
-      # j = 1
-      # if(j < (num+1)){
-      form_final[,i] = form[,i]-form[,i-min(num,i+1)]
-      #   j =  j + 1  
-      
-    }
-    return(form_final)
-  }
-  
-  add_form=function(playing_stat,num){
-    form = get_form(playing_stat,num)
-    
-    h=vector(mode="character",nrow(playing_stat))
-    a=vector(mode="character",nrow(playing_stat))
-    for (i in 1:(num*10)){
-      h[i] = 0  # since form is not available for n MW (n*10)
-      a[i] = 0 
-    }
-    j = num+1
-    for (i in (num*10+1):nrow(playing_stat)){
-      ht = playing_stat$HomeTeam[i]
-      at = playing_stat$AwayTeam[i]
-    
-      past = form[ht,j]               # get past n results
-      h[i]=past                   # 1 index is most recent
-      
-      past = form[at,j]               # get past n results.
-      a[i]=past                  # 1 index is most recent
-    
-      if ((i%% 10) == 0){
-        j = j + 1
-      }
-    }
-    
-    playing_stat[paste('HM',num,sep = "")] = h                 
-    playing_stat[paste('AM',num,sep = "")] = a
-    
-    
-    return(playing_stat)
-  }
-  
-  add_form_df=function(playing_statistics){
-    amount.games=nrow(playing_statistics)
-    if(amount.games>=2*10){playing_statistics = add_form(playing_statistics,1)}
-    if(amount.games>=3*10){playing_statistics = add_form(playing_statistics,2)}
-    if(amount.games>=4*10){playing_statistics = add_form(playing_statistics,3)}
-    if(amount.games>=5*10){playing_statistics = add_form(playing_statistics,4)}
-    if(amount.games>=6*10){playing_statistics = add_form(playing_statistics,5)}
-    return(playing_statistics)
-  }
-  
-  # Make changes to df
-  playing_statistics_1 = add_form_df(playing_statistics_1)
-  playing_statistics_2 = add_form_df(playing_statistics_2)
-  playing_statistics_3 = add_form_df(playing_statistics_3)
-  playing_statistics_4 = add_form_df(playing_statistics_4)
-  playing_statistics_5 = add_form_df(playing_statistics_5)
-  playing_statistics_6 = add_form_df(playing_statistics_6)
-  playing_statistics_7 = add_form_df(playing_statistics_7)
-  playing_statistics_8 = add_form_df(playing_statistics_8)
-  playing_statistics_9 = add_form_df(playing_statistics_9)
-  playing_statistics_10 = add_form_df(playing_statistics_10)
-  playing_statistics_11 = add_form_df(playing_statistics_11)
-  playing_statistics_12 = add_form_df(playing_statistics_12)
-  playing_statistics_13 = add_form_df(playing_statistics_13)
-  playing_statistics_14 = add_form_df(playing_statistics_14)
-  playing_statistics_15 = add_form_df(playing_statistics_15)    
-  playing_statistics_16 = add_form_df(playing_statistics_16)
-  playing_statistics_17 = add_form_df(playing_statistics_17)    
-  playing_statistics_18 = add_form_df(playing_statistics_18)
-  
-=======
- 
->>>>>>> Continous-form-add
   if (include_odds){
     ## to include the odds of InterWetten
     # Rearranging columns with InterWetten odds
