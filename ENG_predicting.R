@@ -18,6 +18,7 @@ library("DiagrammeR")
 library("qlcMatrix")
 
 if(!exists("foo", mode="function")) source("ENG_cleaningandpreparing.R")
+if(!exists("foo", mode="function")) source("automated_betting.R")
 
 # import and prepare the data and eventually save it as csv
 ENG_preparation(FALSE)
@@ -32,27 +33,13 @@ y_all = dataf['FTR']
 
 #Standardising the data
 #Center to the mean and component wise scale to unit variance.
-cols = c('HTGD','ATGD','HTP','ATP','DiffLP','Distance','AwayAvgAge','HomeAvgAge','HomeAvgMV','AwayAvgMV','HTS','ATS','HTST','ATST','HTpoints3','HTpoints5','ATpoints3','ATpoints5')
+cols = c('HTGD','ATGD','HTP','ATP','DiffLP','Distance','AwayAvgAge','HomeAvgAge','HomeAvgMV','AwayAvgMV','HTS','ATS','HTST','ATST','HM3','AM3','HM5','AM5','HM10','AM10','HMH1','AMA1')
 x_all[cols] = scale(x_all[cols])
 
-#last 3 matches for both sides
-x_all$HM3 = ifelse((x_all$HM3-x_all$HM2)==3,"W",ifelse((x_all$HM3-x_all$HM2)==1,"D",ifelse((x_all$HM3-x_all$HM2)==0&x_all$MW>3,"L","NM")))
-x_all$HM2 = ifelse((x_all$HM2-x_all$HM1)==3,"W",ifelse((x_all$HM2-x_all$HM1)==1,"D",ifelse((x_all$HM2-x_all$HM1)==0&x_all$MW>2,"L","NM")))
-x_all$HM1 = ifelse(x_all$HM1==3,"W",ifelse(x_all$HM1==1,"D",ifelse((x_all$HM1)==0&x_all$MW>1,"L","NM")))
-
-x_all$AM3 = ifelse((x_all$AM3-x_all$AM2)==3,"W",ifelse((x_all$AM3-x_all$AM2)==1,"D",ifelse((x_all$AM3-x_all$AM2)==0&x_all$MW>3,"L","NM")))
-x_all$AM2 = ifelse((x_all$AM2-x_all$AM1)==3,"W",ifelse((x_all$AM2-x_all$AM1)==1,"D",ifelse((x_all$AM2-x_all$AM1)==0&x_all$MW>2,"L","NM")))
-x_all$AM1 = ifelse(x_all$AM1==3,"W",ifelse(x_all$AM1==1,"D",ifelse((x_all$AM1)==0&x_all$MW>1,"L","NM")))
-
-# Change categorial columns into dummy columns
-n <- names(x_all)
-f <- as.formula(paste("~ -1 +", paste(n[!n %in% c("X","Date")], collapse = "+")))
-
-A <- model.matrix(f,x_all) 
-A=as.data.frame(A)
-x_featured=A[,c('HTP', 'ATP', 'HM1L', 'HM1W','HM1NM', 'HTGD', 'ATGD',
-                "DiffPts", 'DiffFormPts', 'DiffLP','Distance','AwayAvgAge','HomeAvgAge','HomeAvgMV','AwayAvgMV',
-                'HTS','ATS','HTST','ATST','HTpoints3','HTpoints5','ATpoints3','ATpoints5')]
+x_featured=x_all[,c('HTP', 'ATP','HTGD', 'ATGD',
+                    "DiffPts",'HM3','AM3','HM5','AM5','HM10','AM10','HMH1','AMA1', 
+                    'DiffLP','Distance','AwayAvgAge','HomeAvgAge','HomeAvgMV','AwayAvgMV',
+                    'HTS','ATS','HTST','ATST')]
 
 df=cbind(x_featured,y_all)
 
@@ -112,4 +99,21 @@ test_prediction$Homeodd=1/test_prediction$Home
 test_prediction$Drawodd=1/test_prediction$Draw
 test_prediction$Awayodd=1/test_prediction$Away
 
-write.csv(test_prediction,paste("predictions_per_MW/prediction_MW",(nrow(dataf) %% 380)/10,"_",tail(dataf$Date,n=1),".csv",sep = ""))
+# Using BF odds to see wat the best bet is
+bf_odds = give_bf_odds('ENG')
+bf_odds = bf_odds[1:10,]
+bf_odds = data.frame(bf_odds)
+test_prediction = data.frame(test_prediction[,c("HomeTeam","AwayTeam","PredictedOutcome","Homeodd","Drawodd","Awayodd")])
+real_and_predicted = merge(x = bf_odds, y = test_prediction, by = c("HomeTeam","AwayTeam"), all.x = TRUE)
+pred_real_oddratio = real_and_predicted[,c("BF_H_odds","BF_D_odds","BF_A_odds")]/real_and_predicted[,c("Homeodd","Drawodd","Awayodd")]
+best_ratio = apply(pred_real_oddratio,1,max)
+best_ratio_outcome = max.col(pred_real_oddratio)
+best_ratio_outcome = ifelse(best_ratio_outcome == 1, "H",ifelse(best_ratio_outcome == 2,"D","A"))
+
+real_and_predicted = real_and_predicted[,c("Date","HomeTeam","AwayTeam","PredictedOutcome","Homeodd","Drawodd","Awayodd",
+                                           "BF_H_odds","BF_D_odds","BF_A_odds")]
+real_and_predicted = cbind(real_and_predicted,best_ratio,best_ratio_outcome)
+real_and_predicted = real_and_predicted[order(real_and_predicted$Date),]
+
+
+write.csv(real_and_predicted,paste("predictions_per_MW/prediction_MW",(nrow(dataf) %% 380)/10,"_",as.Date(tail(dataf$Date,n=1),"%y/%m/%d"),".csv",sep = ""))

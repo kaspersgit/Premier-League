@@ -1,6 +1,6 @@
 # scraping premier league distances from http://www.sportmapworld.com/distance
 library(XML)
-library(Rcurl)
+library(RCurl)
 
 urlteams=c("arsenal","aston-villa","birmingham-city","blackburn-rovers","blackpool","bolton-wanderers","bournemouth","bradford-city","brighton-hove-albion","burnley","cardiff-city","charlton-athletic","chelsea","coventry-city","crystal-palace","derby-county","everton","fulham","huddersfield-town","hull-city","ipswich-town","leeds-united","leicester-city","liverpool","manchester-city","manchester-united","middlesbrough","newcastle-united","norwich-city","portsmouth","queens-park-rangers","reading","sheffield-united","southampton","stoke-city","sunderland","swansea-city","tottenham-hotspur","watford","west-bromwich-albion","west-ham-united","wigan-athletic","wolverhampton-wanderers","afc-wimbledon")
 team.names=c("Arsenal","Aston Villa","Birmingham","Blackburn","Blackpool","Bolton","Bournemouth","Bradford","Brighton","Burnley","Cardiff","Charlton","Chelsea","Coventry","Crystal Palace","Derby","Everton","Fulham","Huddersfield","Hull","Ipswich","Leeds","Leicester","Liverpool","Man City","Man United","Middlesbrough","Newcastle","Norwich","Portsmouth","QPR","Reading","Sheffield United","Southampton","Stoke","Sunderland","Swansea","Tottenham","Watford","West Brom","West Ham","Wigan","Wolves","Wimbledon")

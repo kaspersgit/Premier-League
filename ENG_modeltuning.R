@@ -28,41 +28,24 @@ y_all = dataf['FTR']
 
 #Standardising the data
 #Center to the mean and component wise scale to unit variance.
-cols = c('HTGD','ATGD','HTP','ATP','DiffLP','Distance','AwayAvgAge','HomeAvgAge','HomeAvgMV','AwayAvgMV','HTS','ATS','HTST','ATST','HTpoints3','HTpoints5','ATpoints3','ATpoints5')
+cols = c('HTGD','ATGD','HTP','ATP','DiffLP','Distance','AwayAvgAge','HomeAvgAge','HomeAvgMV','AwayAvgMV','HTS','ATS','HTST','ATST','HM3','AM3','HM5','AM5','HM10','AM10','HMH1','AMA1')
 x_all[cols] = scale(x_all[cols])
 
-#last 3 matches for both sides
-x_all$HM3 = ifelse((x_all$HM3-x_all$HM2)==3,"W",ifelse((x_all$HM3-x_all$HM2)==1,"D",ifelse((x_all$HM3-x_all$HM2)==0&x_all$MW>3,"L","NM")))
-x_all$HM2 = ifelse((x_all$HM2-x_all$HM1)==3,"W",ifelse((x_all$HM2-x_all$HM1)==1,"D",ifelse((x_all$HM2-x_all$HM1)==0&x_all$MW>2,"L","NM")))
-x_all$HM1 = ifelse(x_all$HM1==3,"W",ifelse(x_all$HM1==1,"D",ifelse((x_all$HM1)==0&x_all$MW>1,"L","NM")))
-
-x_all$AM3 = ifelse((x_all$AM3-x_all$AM2)==3,"W",ifelse((x_all$AM3-x_all$AM2)==1,"D",ifelse((x_all$AM3-x_all$AM2)==0&x_all$MW>3,"L","NM")))
-x_all$AM2 = ifelse((x_all$AM2-x_all$AM1)==3,"W",ifelse((x_all$AM2-x_all$AM1)==1,"D",ifelse((x_all$AM2-x_all$AM1)==0&x_all$MW>2,"L","NM")))
-x_all$AM1 = ifelse(x_all$AM1==3,"W",ifelse(x_all$AM1==1,"D",ifelse((x_all$AM1)==0&x_all$MW>1,"L","NM")))
-
-# Change categorial columns into dummy columns
-n <- names(x_all)
-f <- as.formula(paste("~ -1 +", paste(n[!n %in% c("X","Date")], collapse = "+")))
-
-A <- model.matrix(f,x_all) 
-head(A)
-A=as.data.frame(A)
-A$matchnr.=c(1:nrow(A))
+x_all$matchnr.=c(1:nrow(x_all))
 
 # with interwetten columns
-x_featured=A[,c('HTP', 'ATP', 'HM1L', 'HM1W','HM1NM', 'HTGD', 'ATGD',
-                "DiffPts", 'DiffFormPts', 'DiffLP','Distance','AwayAvgAge','HomeAvgAge','HomeAvgMV','AwayAvgMV',
-                'HTS','ATS','HTST','ATST','IWH','IWD','IWA','matchnr.','MW','HTpoints3','HTpoints5','ATpoints3','ATpoints5')]
-
-# x_featured=A[,c('HTP', 'ATP', 'HM1L', 'HM1W','HM1NM', 'HM2L', 'HM2W','HM2NM', 'HM3L', 'HM3W','HM3NM',
-#                 'AM1L','AM1NM', 'AM1W', 'AM2L', 'AM2W','AM2NM', 'AM3L', 'AM3W','AM3NM', 'HTGD', 'ATGD',
-#                 "DiffPts", 'DiffFormPts', 'DiffLP','Distance','AwayAvgAge','HomeAvgAge','HomeAvgMV','AwayAvgMV',
-#                 'HTS','ATS','HTST','ATST')]
+x_featured=x_all[,c('HTP', 'ATP','HTGD', 'ATGD',
+                "DiffPts","DiffLP",'HM3','AM3','HM5','AM5','HM10','AM10','HMH1','AMA1', 
+                'Distance','AwayAvgAge','HomeAvgAge','HomeAvgMV','AwayAvgMV',
+                'HTS','ATS','HTST','ATST','IWH','IWD','IWA','matchnr.','MW')]
 
 # to avoid having unequal amount of rows
-y_all=y_all$FTR[!is.na(x_all$IWA)]
+#x_featured=x_featured[!is.na(x_featured$IWA),]
+#y_all=y_all$FTR[!is.na(x_featured$IWA)]
 
 df=cbind(x_featured,y_all)
+
+df=df[!is.na(df$IWA),]
 
 colnames(df)[ncol(df)]="FTR"
 
@@ -99,7 +82,7 @@ xgb_params <- list("max_depth"=3,"eta"=0.2,
                    "alpha"=0,
                    "lambda"=1,
                    "num_class" = numberOfClasses)
-nround    <- 20 # number of XGBoost rounds
+nround    <- 25 # number of XGBoost rounds
 cv.nfold  <- 10
 set.seed(999)
 # Fit cv.nfold * cv.nround XGB models and save OOF predictions
@@ -181,7 +164,7 @@ calc_prof <- function(minprofmarg,maxprofmarg,minprob,maxprob,bet_on_outcomes,wa
 }
 
 # calculating the profit given the minimal profit margin, lower probability, higher probability and the wager amount
-calc_prof(minprofmarg=1.1,maxprofmarg=2,minprob=0.1,maxprob=0.9,c(1,3),wager=1,n.periods=15) 
+calc_prof(minprofmarg=1.1,maxprofmarg=1.8,minprob=0.33,maxprob=0.99,c(1),wager=1,n.periods=15) 
 
 ### checking if between two prbabilities the fraction of correct predictions is the same
 check_prob <- function(LB,UB){
@@ -189,8 +172,8 @@ check_prob <- function(LB,UB){
   preds$high.prob=apply(preds[,c(1:3)],1,max)
   part.preds=preds[preds$high.prob>LB&preds$high.prob<UB,]
   fraction.correct=sum(part.preds$max_prob==part.preds$label)/nrow(part.preds)
-  return(list(cat("For predictions with probability between ",100*LB,"% and ",100*UB,"%\n",
-                  "the fraction that is correctly predicted is ",round(100*fraction.correct,digits = 2),"%",sep = ""),
+  return(list(cat("For predictions with probability between ",100*LB,"% and ",100*UB,"%",
+                  "the fraction that is correctly predicted is ",round(100*fraction.correct,digits = 2),"%\n",sep = ""),
               fraction.correct))
 }
 
@@ -224,11 +207,12 @@ test_prediction <- matrix(test_pred, nrow = numberOfClasses,
 confusionMatrix(test_prediction$label,
                 test_prediction$max_prob)
 
-#plot tree
-xgb.plot.tree(names(x_featured),bst_model,n_first_tree = 1)
+#plot tree fun but slow and not handy
+# xgb.plot.tree(names(x_featured),bst_model,n_first_tree = 1)
 
 #plot importance of features
-importance_matrix = xgb.importance(feature_names = names(x_featured), model = bst_model)
+var_names=names(x_featured)[-which(names(x_featured) %in% c("IWH", "IWD", "IWA", "matchnr.") )]
+importance_matrix = xgb.importance(feature_names = var_names, model = bst_model)
 head(importance_matrix)
 gp = xgb.plot.importance(importance_matrix)
 print(gp)

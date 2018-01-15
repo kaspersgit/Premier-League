@@ -1,0 +1,11 @@
+"","Date","HomeTeam","AwayTeam","PredictedOutcome","Homeodd","Drawodd","Awayodd","BF_H_odds","BF_D_odds","BF_A_odds","best_ratio","best_ratio_outcome"
+"7","2018-01-15T20:00:00.000Z","ManUnited","Stoke","ManUnited",1.30236603412253,7.47996686957252,10.1547316160838,1.22,7.8,18,1.77257269620895,"A"
+"2","2018-01-20T12:30:00.000Z","Brighton","Chelsea",NA,NA,NA,NA,9.4,4.6,1.45,NA,NA
+"1","2018-01-20T15:00:00.000Z","Arsenal","CrystalPalace",NA,NA,NA,NA,1.5,5,6.8,NA,NA
+"3","2018-01-20T15:00:00.000Z","Burnley","ManUnited",NA,NA,NA,NA,6,4,1.61,NA,NA
+"4","2018-01-20T15:00:00.000Z","Everton","WestBrom",NA,NA,NA,NA,2.28,3.2,3.85,NA,NA
+"5","2018-01-20T15:00:00.000Z","Leicester","Watford",NA,NA,NA,NA,1.93,3.85,4.4,NA,NA
+"9","2018-01-20T15:00:00.000Z","Stoke","Huddersfield",NA,NA,NA,NA,1.96,3.3,4.3,NA,NA
+"10","2018-01-20T15:00:00.000Z","WestHam","Bournemouth",NA,NA,NA,NA,2.06,3.55,4.2,NA,NA
+"6","2018-01-20T17:30:00.000Z","ManCity","Newcastle",NA,NA,NA,NA,1.13,11.5,22,NA,NA
+"8","2018-01-21T16:00:00.000Z","Southampton","Tottenham",NA,NA,NA,NA,5.7,4.1,1.7,NA,NA
