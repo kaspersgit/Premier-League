@@ -1,21 +1,18 @@
 ENG_preparation <- function(include_odds){
-  raw.data.1 = read.csv('historic_data/2000.csv')
-  raw.data.2 = read.csv('historic_data/2001.csv')
-  raw.data.3 = read.csv('historic_data/2002.csv')
-  raw.data.4 = read.csv('historic_data/2003.csv')
-  raw.data.5 = read.csv('historic_data/2004.csv')
-  raw.data.6 = read.csv('historic_data/2005.csv')
-  raw.data.7 = read.csv('historic_data/2006.csv')
-  raw.data.8 = read.csv('historic_data/2007.csv')
-  raw.data.9 = read.csv('historic_data/2008.csv')
-  raw.data.10 = read.csv('historic_data/2009.csv')
-  raw.data.11 = read.csv('historic_data/2010.csv')
-  raw.data.12 = read.csv('historic_data/2011.csv')
-  raw.data.13 = read.csv('historic_data/2012.csv')
-  raw.data.14 = read.csv('historic_data/2013.csv')
-  raw.data.15 = read.csv('historic_data/2014.csv')
-  raw.data.16 = read.csv('historic_data/2015.csv')
-  raw.data.17 = read.csv('historic_data/2016.csv')
+  all_data = import_data_db()
+
+  #making sure the underneatch doesnt include season == NULL
+  raw.data.7 = all_data[all_data$season==20062007,]
+  raw.data.8 = all_data[all_data$season== 20072008 ,]
+  raw.data.9 = all_data[all_data$season== 20082009 ,]
+  raw.data.10 = all_data[all_data$season== 20092010 ,]
+  raw.data.11 = all_data[all_data$season== 20102011 ,]
+  raw.data.12 = all_data[all_data$season== 20112012 ,]
+  raw.data.13 = all_data[all_data$season== 20122013 ,]
+  raw.data.14 = all_data[all_data$season== 20132014 ,]
+  raw.data.15 = all_data[all_data$season== 20142015 ,]
+  raw.data.16 = all_data[all_data$season== 20152016 ,]
+  raw.data.17 = all_data[all_data$season== 20162017 ,]
   # get the latest available data 
   raw.data.18 = read.csv("http://www.football-data.co.uk/mmz4281/1718/E0.csv")
   
