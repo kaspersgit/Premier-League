@@ -14,6 +14,7 @@ library("DiagrammeR")
 library("qlcMatrix")
 
 if(!exists("foo", mode="function")) source("ENG_cleaningandpreparing.R")
+if(!exists("foo", mode="function")) source("automated_betting.R")
 
 # import and prepare the data and eventually save it as csv
 ENG_preparation(FALSE)
@@ -111,4 +112,4 @@ real_and_predicted = cbind(real_and_predicted,best_ratio,best_ratio_outcome)
 real_and_predicted = real_and_predicted[order(real_and_predicted$Date),]
 
 
-write.csv(real_and_predicted,paste("predictions_per_MW/prediction_MW",(nrow(dataf) %% 380)/10,"_",tail(dataf$Date,n=1),".csv",sep = ""))
+write.csv(real_and_predicted,paste("predictions_per_MW/prediction_MW",(nrow(dataf) %% 380)/10,"_",as.Date(tail(dataf$Date,n=1),"%y/%m/%d"),".csv",sep = ""))

@@ -1,9 +1,9 @@
 ENG_preparation <- function(include_odds){
   raw.data.1 = read.csv('historic_data/2000.csv')
   raw.data.2 = read.csv('historic_data/2001.csv')
-  raw.data.3 = read.csv2('historic_data/2002.csv')
-  raw.data.4 = read.csv2('historic_data/2003.csv')
-  raw.data.5 = read.csv2('historic_data/2004.csv')
+  raw.data.3 = read.csv('historic_data/2002.csv')
+  raw.data.4 = read.csv('historic_data/2003.csv')
+  raw.data.5 = read.csv('historic_data/2004.csv')
   raw.data.6 = read.csv('historic_data/2005.csv')
   raw.data.7 = read.csv('historic_data/2006.csv')
   raw.data.8 = read.csv('historic_data/2007.csv')
