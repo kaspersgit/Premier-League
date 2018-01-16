@@ -14,7 +14,7 @@ library("DiagrammeR")
 library("qlcMatrix")
 
 if(!exists("foo", mode="function")) source("ENG_cleaningandpreparing.R")
-if(!exists("foo", mode="function")) source("RSQLite_connection.R")
+if(!exists("foo", mode="function")) source("ENG_db_connection.R")
 if(!exists("foo", mode="function")) source("automated_betting.R")
 
 # import and prepare the data and eventually save it as csv
