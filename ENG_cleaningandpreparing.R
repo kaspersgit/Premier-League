@@ -20,6 +20,7 @@ ENG_preparation <- function(include_odds){
   raw.data.18 = read.csv("http://www.football-data.co.uk/mmz4281/1718/E0.csv")
   
   n.games=nrow(raw.data.18)
+  n.teams=length(unique(raw.data.17$HomeTeam))
   # using the PL program to fill in the matches for the next match week
   # taken from http://dedicatedexcel.com/uk-football-fixtures-2017-18-in-excel-format/
   next.matches=read.csv("yearly_updated_data/fixtures_2017_2018.csv", sep = ";")
