@@ -136,10 +136,10 @@ ENG_preparation <- function(include_odds){
       HTGC=matrix(rep(0,2*19),ncol = 2)
       ATGC=matrix(rep(0,2*19),ncol = 2)
       for (i in 1:sum(playing_stat$HomeTeam==t)){
-        HTGC[i,]=t(c(playing_stat[which(playing_stat$HomeTeam==t)[i],c("FTAG")],as.numeric(playing_stat[which(playing_stat$HomeTeam==t)[i],c("Date")])))
+        HTGC[i,]=t(c(playing_stat[which(playing_stat$HomeTeam==t)[i],c("FTAG")],as.numeric(as.Date(playing_stat[which(playing_stat$HomeTeam==t)[i],c("Date")]))))
       }
       for (i in 1:sum(playing_stat$AwayTeam==t)){
-        ATGC[i,]=t(c(playing_stat[which(playing_stat$AwayTeam==t)[i],c("FTHG")],as.numeric(playing_stat[which(playing_stat$AwayTeam==t)[i],c("Date")])))
+        ATGC[i,]=t(c(playing_stat[which(playing_stat$AwayTeam==t)[i],c("FTHG")],as.numeric(as.Date(playing_stat[which(playing_stat$AwayTeam==t)[i],c("Date")]))))
       }
       TGC=rbind(HTGC,ATGC,c(0,0))
       TGC=TGC[order(TGC[,2]),]
@@ -250,10 +250,10 @@ ENG_preparation <- function(include_odds){
       HTST=matrix(rep(0,2*19),ncol = 2)
       ATST=matrix(rep(0,2*19),ncol = 2)
       for (i in 1:sum(playing_stat$HomeTeam==t)){
-        HTST[i,]=t(c(playing_stat[which(playing_stat$HomeTeam==t)[i],c("HST")],as.numeric(playing_stat[which(playing_stat$HomeTeam==t)[i],c("Date")])))
+        HTST[i,]=t(c(playing_stat[which(playing_stat$HomeTeam==t)[i],c("HST")],as.numeric(as.Date(playing_stat[which(playing_stat$HomeTeam==t)[i],c("Date")]))))
       }
       for (i in 1:sum(playing_stat$AwayTeam==t)){
-        ATST[i,]=t(c(playing_stat[which(playing_stat$AwayTeam==t)[i],c("AST")],as.numeric(playing_stat[which(playing_stat$AwayTeam==t)[i],c("Date")])))
+        ATST[i,]=t(c(playing_stat[which(playing_stat$AwayTeam==t)[i],c("AST")],as.numeric(as.Date(playing_stat[which(playing_stat$AwayTeam==t)[i],c("Date")]))))
       }
       TST=rbind(HTST,ATST,c(0,0))
       TST=TST[order(TST[,2]),]
@@ -356,11 +356,11 @@ ENG_preparation <- function(include_odds){
 
       for (i in 1:sum(playing_stat$HomeTeam==t)){
         w_round=ceiling(which(playing_stat$HomeTeam==t)[i]/10)
-        HTP[w_round,]=t(c(HFTR.point[which(playing_stat$HomeTeam==t)[i]],playing_stat[which(playing_stat$HomeTeam==t)[i],c("Date")]))
+        HTP[w_round,]=t(c(HFTR.point[which(playing_stat$HomeTeam==t)[i]],as.Date(playing_stat[which(playing_stat$HomeTeam==t)[i],c("Date")])))
       }
       for (i in 1:sum(playing_stat$AwayTeam==t)){
         w_round=ceiling(which(playing_stat$AwayTeam==t)[i]/10)
-        ATP[w_round,]=t(c(AFTR.point[which(playing_stat$AwayTeam==t)[i]],playing_stat[which(playing_stat$AwayTeam==t)[i],c("Date")]))
+        ATP[w_round,]=t(c(AFTR.point[which(playing_stat$AwayTeam==t)[i]],as.Date(playing_stat[which(playing_stat$AwayTeam==t)[i],c("Date")])))
       }
       TP=HTP+ATP
       TP=rbind(c(0,0),TP[-nrow(TP),])
@@ -389,8 +389,8 @@ ENG_preparation <- function(include_odds){
         j = j + 1
       }
       
-      playing_stat['HTP'] = HTP
-      playing_stat['ATP'] = ATP
+      playing_stat['HTP'] = as.numeric(unlist(HTP))
+      playing_stat['ATP'] = as.numeric(unlist(ATP))
     }
     return(playing_stat)
   }
@@ -724,8 +724,8 @@ ENG_preparation <- function(include_odds){
   playing_stat=get_distance(playing_stat)
   
   # Get Goal Difference
-  playing_stat['HTGD'] = playing_stat['HTGS'] - playing_stat['HTGC']
-  playing_stat['ATGD'] = playing_stat['ATGS'] - playing_stat['ATGC']
+  playing_stat['HTGD'] = as.numeric(unlist(playing_stat['HTGS'])) - as.numeric(unlist(playing_stat['HTGC']))
+  playing_stat['ATGD'] = as.numeric(unlist(playing_stat['ATGS'])) - as.numeric(unlist(playing_stat['ATGC']))
   
   # Diff in points
   playing_stat['DiffPts'] = playing_stat['HTP'] - playing_stat['ATP']
@@ -737,7 +737,7 @@ ENG_preparation <- function(include_odds){
   cols = c('HTGD','ATGD','DiffPts','HTP','ATP','HTS','ATS','HTST','ATST')
   
   for (col in cols){
-    playing_stat[col] = playing_stat[col] / playing_stat$MW
+    playing_stat[col] = as.numeric(unlist(playing_stat[col])) / as.numeric(unlist(playing_stat$MW))
   }
   
   write.csv(playing_stat,"ENG_final_dataset.csv")
