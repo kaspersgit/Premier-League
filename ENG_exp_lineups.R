@@ -1,7 +1,7 @@
 library(XML)
 library(rvest)
 
-
+exp_matches_lineups=setNames(data.frame(matrix(ncol = 25, nrow = 0)), c("match_date","hometeam","awayteam","h1","h2","h3","h4","h5","h6","h7","h8","h9","h10","h11","a1","a2","a3","a4","a5","a6","a7","a8","a9","a10","a11"))
 # Overview of the expected lineups in a league 
 exp_url <- paste0("http://www.teamfeed.co.uk/lineups/competition/england/premier-league/expected")
 
@@ -27,3 +27,5 @@ for (i in 1:length(exp_matches)){
   month[i] <- as.numeric(which(sapply(months_all, function(x) grepl(x, exp_matches[i]))))
 }
 match_date=format(as.Date(paste(year,month,day, sep = "-"),"%Y-%m-%d"))
+
+exp_matches_lineups <- rbind(exp_matches_lineups,cbind(match_date,team_names,line_ups))
