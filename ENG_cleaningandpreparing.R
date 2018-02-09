@@ -1,5 +1,9 @@
 ENG_preparation <- function(include_odds){
+  #update_db()
+  
   all_data = import_data_db(include_odds)
+  
+  
   
   #making sure the underneath doesnt include season == NULL
   raw.data.1 = all_data[which(all_data$season== 20002001),]
