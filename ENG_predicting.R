@@ -113,4 +113,4 @@ real_and_predicted = cbind(real_and_predicted,best_ratio,best_ratio_outcome)
 real_and_predicted = real_and_predicted[order(real_and_predicted$Date),]
 
 
-write.csv(real_and_predicted,paste("predictions_per_MW/prediction_MW",(nrow(dataf) %% 380)/10,"_",as.Date(tail(dataf$Date,n=1),"%y/%m/%d"),".csv",sep = ""))
+write.csv(real_and_predicted,paste("predictions_per_MW/prediction_MW",(nrow(dataf) %% 380)/10,"_",as.Date(tail(dataf$Date,n=1),"%d/%m/%y"),".csv",sep = ""))
