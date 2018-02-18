@@ -2,6 +2,7 @@ library(XML)
 library(rvest)
 
 exp_matches_lineups=setNames(data.frame(matrix(ncol = 25, nrow = 0)), c("match_date","hometeam","awayteam","h1","h2","h3","h4","h5","h6","h7","h8","h9","h10","h11","a1","a2","a3","a4","a5","a6","a7","a8","a9","a10","a11"))
+
 # Overview of the expected lineups in a league 
 exp_url <- paste0("http://www.teamfeed.co.uk/lineups/competition/england/premier-league/expected")
 

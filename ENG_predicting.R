@@ -13,9 +13,13 @@ library("stringr")
 library("DiagrammeR")
 library("qlcMatrix")
 
+if(!exists("foo", mode="function")) source("ENG_db_updating.R")
 if(!exists("foo", mode="function")) source("ENG_cleaningandpreparing.R")
 if(!exists("foo", mode="function")) source("ENG_db_connection.R")
-if(!exists("foo", mode="function")) source("automated_betting.R")
+if(!exists("foo", mode="function")) source("give_bf_odds.R")
+
+# First update the db
+ENG_db_updating()
 
 # import and prepare the data and eventually save it as csv
 ENG_preparation(FALSE)
