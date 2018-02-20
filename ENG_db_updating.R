@@ -132,4 +132,24 @@ ENG_db_updating <- function(){
     
     dbDisconnect(con)
   }
+  
+  # Updating the next expected match lineups
+  # First getting the expected line ups for the coming 10 games (need to make back up when not available or something else wrong)
+  exp_lineups <- ENG_exp_lineups_V2()
+  
+  # Open connectino to the db
+  con = dbConnect(RSQLite::SQLite(), dbname="historic_data/football.db")
+  
+  # Delete content of input table (because we just use this table for input, a trigger adds it to the main table)
+  dbSendQuery(con, 'DELETE FROM ENG_exp_lineups')
+  add_lineups =dbSendQuery(con, 'INSERT INTO ENG_exp_lineups
+                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
+  
+  for (i in 1:nrow(exp_lineups)){
+    dbBind(add_lineups, unlist(exp_lineups[i,], use.names = FALSE))
+  }
+  
+  dbClearResult(add_lineups)
+  
+  dbDisconnect(con)
 }

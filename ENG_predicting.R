@@ -14,6 +14,7 @@ library("DiagrammeR")
 library("qlcMatrix")
 
 if(!exists("foo", mode="function")) source("ENG_db_updating.R")
+if(!exists("foo", mode="function")) source("ENG_exp_lineups_V2.R")
 if(!exists("foo", mode="function")) source("ENG_cleaningandpreparing.R")
 if(!exists("foo", mode="function")) source("ENG_db_connection.R")
 if(!exists("foo", mode="function")) source("give_bf_odds.R")
