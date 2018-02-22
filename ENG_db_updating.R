@@ -7,6 +7,10 @@ ENG_db_updating <- function(){
   library("RSQLite")
   library(DBI)
   
+  # for in case we have to change the team names to make them in line with db names
+  url.names=c("Arsenal","Aston Villa","Birmingham","Blackburn","Blackpool","Bolton","AFC Bournemouth","Bradford City","Brighton and Hove Albion","Burnley","Cardiff","Charlton","Chelsea","Coventry City","Crystal Palace","Derby","Everton","Fulham","Huddersfield Town","Hull City","Ipswich","Leeds","Leicester City","Liverpool","Manchester City","Manchester United","Middlesbrough","Newcastle United","Norwich","Portsmouth FC","QPR","Reading","Sheffield Utd.","Southampton","Stoke City","Sunderland","Swansea City","Tottenham Hotspur","Watford","West Bromwich Albion","West Ham United","Wigan","Wolves","Wimbledon")
+  team.names=c("Arsenal","Aston Villa","Birmingham","Blackburn","Blackpool","Bolton","Bournemouth","Bradford","Brighton","Burnley","Cardiff","Charlton","Chelsea","Coventry","Crystal Palace","Derby","Everton","Fulham","Huddersfield","Hull","Ipswich","Leeds","Leicester","Liverpool","Man City","Man United","Middlesbrough","Newcastle","Norwich","Portsmouth","QPR","Reading","Sheffield United","Southampton","Stoke","Sunderland","Swansea","Tottenham","Watford","West Brom","West Ham","Wigan","Wolves","Wimbledon")
+  
   # connect to the sqlite db
   con = dbConnect(RSQLite::SQLite(), dbname="historic_data/football.db")
   
@@ -89,6 +93,9 @@ ENG_db_updating <- function(){
         home_name <- home_team[1]
         away_name <- away_team[1]
         
+        home_name <- team.names[which(home_name==url.names)]
+        away_name <- team.names[which(away_name==url.names)]
+        
         home_starting11 <- home_team[2:12]
         away_starting11 <- away_team[2:12]
         
@@ -114,6 +121,7 @@ ENG_db_updating <- function(){
     
     #delete the first row with only zero's caused by the creation of the vector in the first place
     match_lineups <- match_lineups[match_lineups$match_date!=0,]
+    colnames(match_lineups) <- NULL
     rownames(match_lineups) <- 1:nrow(match_lineups)
     
     # Open connectino to the db
@@ -125,10 +133,10 @@ ENG_db_updating <- function(){
                                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
     
     for (i in 1:nrow(match_lineups)){
-      dbBind(add_lineups, unlist(match_lineups_clean[i,], use.names = FALSE))
+      dbBind(add_lineups, unlist(match_lineups[i,]))
     }
     
-      dbClearResult(add_lineups)
+    dbClearResult(add_lineups)
     
     dbDisconnect(con)
   }
@@ -136,6 +144,8 @@ ENG_db_updating <- function(){
   # Updating the next expected match lineups
   # First getting the expected line ups for the coming 10 games (need to make back up when not available or something else wrong)
   exp_lineups <- ENG_exp_lineups_V2()
+  exp_lineups$season <- ifelse(strftime(exp_lineups$match_date, format = "%V")>26,paste0(as.numeric(strftime(exp_lineups$match_date, format = "%Y")),as.numeric(strftime(exp_lineups$match_date, format = "%Y"))+1),paste0(as.numeric(strftime(exp_lineups$match_date, format = "%Y"))-1,as.numeric(strftime(exp_lineups$match_date, format = "%Y"))))
+  names(exp_lineups) <- NULL
   
   # Open connectino to the db
   con = dbConnect(RSQLite::SQLite(), dbname="historic_data/football.db")
@@ -143,10 +153,10 @@ ENG_db_updating <- function(){
   # Delete content of input table (because we just use this table for input, a trigger adds it to the main table)
   dbSendQuery(con, 'DELETE FROM ENG_exp_lineups')
   add_lineups =dbSendQuery(con, 'INSERT INTO ENG_exp_lineups
-                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
+                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
   
   for (i in 1:nrow(exp_lineups)){
-    dbBind(add_lineups, unlist(exp_lineups[i,], use.names = FALSE))
+    dbBind(add_lineups, exp_lineups[i,])
   }
   
   dbClearResult(add_lineups)
