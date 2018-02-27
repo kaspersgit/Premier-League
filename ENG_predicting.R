@@ -19,6 +19,8 @@ if(!exists("foo", mode="function")) source("ENG_cleaningandpreparing.R")
 if(!exists("foo", mode="function")) source("ENG_db_connection.R")
 if(!exists("foo", mode="function")) source("give_bf_odds.R")
 
+# Before starting the ENG_db_updating function we need to make sure the internet connection is good
+#If not this will end in an error halfway updating the DB, meaning we have to delete rows in some tables manually
 # First update the db
 ENG_db_updating()
 

@@ -1,8 +1,8 @@
 ENG_preparation <- function(include_odds){
   #update_db()
   
-  all_data = import_data_db(include_odds)[1]
-  exp_data = import_data_db(include_odds)[2]
+  all_data = import_data_db(include_odds)[[1]]
+  exp_data = import_data_db(include_odds)[[2]]
   
   
   
@@ -25,26 +25,30 @@ ENG_preparation <- function(include_odds){
   raw.data.16 = all_data[which(all_data$season== 20152016),]
   raw.data.17 = all_data[which(all_data$season== 20162017),]
   raw.data.18 = all_data[which(all_data$season== 20172018),]
+  
   # get the latest available data
   n.games=nrow(raw.data.18)
   n.teams=length(unique(raw.data.17$HomeTeam))
-  #  # using the PL program to fill in the matches for the next match week
-  #  # taken from http://dedicatedexcel.com/uk-football-fixtures-2017-18-in-excel-format/
-  #  next.matches=read.csv("yearly_updated_data/fixtures_2017_2018.csv", sep = ";")
-  #  next.matches=next.matches[c((n.games+1):(n.games+10)),]
-  #  fixtures=as.data.frame(matrix(rep(0,ncol(raw.data.18)*10),nrow=10))
-  #  names(fixtures)=names(raw.data.18)
-  #  
-  #  #filling the dataframe with coming weeks matches
-  #  fixtures$Div=rep("E0",nrow(fixtures))
-  #  fixtures$HomeTeam=next.matches$HOME.TEAM
-  #  fixtures$AwayTeam=next.matches$AWAY.TEAM
-  #  fixtures$Date=format(as.Date(next.matches$DATE,"%d-%m-%Y"),"%d/%m/%y")
-  #  fixtures$FTR=rep("D",nrow(fixtures))
-  #  fixtures$HTR=rep("D",nrow(fixtures))
-  #  fixtures$Referee=rep("D",nrow(fixtures))
-  #  
-  #  raw.data.18=rbind(raw.data.18,fixtures)
+  
+  # using the expected details and lineups saved in ENG_exp_lineups 
+  next.matches=exp_data
+
+  fixtures=as.data.frame(matrix(rep(0,ncol(raw.data.18)*nrow(exp_data)),nrow=nrow(exp_data)))
+  names(fixtures)=names(raw.data.18)
+  #fixturesv <- merge(next.matches,fixtures, by.x = intersect(names(fixtures), names(next.matches)))
+  fixtures[,intersect(names(fixtures), names(next.matches))] <- next.matches[,intersect(names(fixtures), names(next.matches))]
+  
+   #filling the dataframe with coming weeks matches
+   fixtures$mid=c((max(all_data$mid)+1):(max(all_data$mid)+10))
+   fixtures$Date=next.matches$match_date
+   fixtures$Div=rep("E0",nrow(fixtures))
+   fixtures$HomeTeam=next.matches$hometeam
+   fixtures$AwayTeam=next.matches$awayteam
+   fixtures$FTR=rep("D",nrow(fixtures))
+   fixtures$HTR=rep("D",nrow(fixtures))
+   fixtures$Referee=rep("D",nrow(fixtures))
+
+   raw.data.18=rbind(raw.data.18,fixtures)
   
   
   delete.spaces=function(rawdata){
@@ -70,7 +74,7 @@ ENG_preparation <- function(include_odds){
   raw.data.15=delete.spaces(raw.data.15)
   raw.data.16=delete.spaces(raw.data.16)
   raw.data.17=delete.spaces(raw.data.17)
-  #raw.data.18=delete.spaces(raw.data.18)
+  raw.data.18=delete.spaces(raw.data.18)
   
   
   if (include_odds){
@@ -99,18 +103,18 @@ ENG_preparation <- function(include_odds){
   playing_statistics_15 = raw.data.15[!is.na(raw.data.15$Date),columns_req]
   playing_statistics_16 = raw.data.16[!is.na(raw.data.16$Date),columns_req]
   playing_statistics_17 = raw.data.17[!is.na(raw.data.17$Date),columns_req]
-  #playing_statistics_18 = raw.data.18[!is.na(raw.data.18$Date),columns_req]
+  playing_statistics_18 = raw.data.18[!is.na(raw.data.18$Date),columns_req]
   
   # Gets the goals scored agg arranged by teams and matchweek
   get_goals_scored=function(playing_stat){
     # Create a dictionary with team names as keys
-    goalsscored = matrix(rep(0,2*380),ncol=38)
+    goalsscored = matrix(rep(0,2*(n.teams*(n.teams-1))),ncol=2*(n.teams-1))
     teamnames=unique(playing_stat$HomeTeam)
     
     # count goals at Home and Away and create cumulative total per matchweek
     for (t in teamnames){
-      HTGS=matrix(rep(0,2*19),ncol = 2)
-      ATGS=matrix(rep(0,2*19),ncol = 2)
+      HTGS=matrix(rep(0,2*(n.teams-1)),ncol = 2)
+      ATGS=matrix(rep(0,2*(n.teams-1)),ncol = 2)
       for (i in 1:sum(playing_stat$HomeTeam==t)){
         HTGS[i,]=t(c(playing_stat[which(playing_stat$HomeTeam==t)[i],c("FTHG")],playing_stat[which(playing_stat$HomeTeam==t)[i],c("Date")]))
       }
@@ -135,13 +139,13 @@ ENG_preparation <- function(include_odds){
   
   get_goals_conceded=function(playing_stat){
     # Create a dictionary with team names as keys
-    goalsconceded = matrix(rep(0,2*380),ncol=38)
+    goalsconceded = matrix(rep(0,2*(n.teams*(n.teams-1))),ncol=32*(n.teams-1))
     teamnames=unique(playing_stat$HomeTeam)
     
     # count goals at Home and Away and create cumulative total per matchweek
     for (t in teamnames){
-      HTGC=matrix(rep(0,2*19),ncol = 2)
-      ATGC=matrix(rep(0,2*19),ncol = 2)
+      HTGC=matrix(rep(0,2*(n.teams-1)),ncol = 2)
+      ATGC=matrix(rep(0,2*(n.teams-1)),ncol = 2)
       for (i in 1:sum(playing_stat$HomeTeam==t)){
         HTGC[i,]=t(c(playing_stat[which(playing_stat$HomeTeam==t)[i],c("FTAG")],as.numeric(as.Date(playing_stat[which(playing_stat$HomeTeam==t)[i],c("Date")]))))
       }
@@ -182,7 +186,7 @@ ENG_preparation <- function(include_odds){
       HTGC[i]=GC[ht,j]
       ATGC[i]=GC[at,j]
       
-      if ((i %% 10) == 0){
+      if ((i %% (n.teams/2)) == 0){
         j = j + 1
       }
       
@@ -212,19 +216,19 @@ ENG_preparation <- function(include_odds){
   playing_statistics_15 = get_gss(playing_statistics_15)
   playing_statistics_16 = get_gss(playing_statistics_16)
   playing_statistics_17 = get_gss(playing_statistics_17)
-  #playing_statistics_18 = get_gss(playing_statistics_18)
+  playing_statistics_18 = get_gss(playing_statistics_18)
   
   
   # Gets the shots agg arranged by teams and matchweek
   get_shots=function(playing_stat){
     # Create a dictionary with team names as keys
-    shots = matrix(rep(0,2*380),ncol=38)
+    shots = matrix(rep(0,2*n.teams*(n.teams-1)),ncol=2*(n.teams-1))
     teamnames=unique(playing_stat$HomeTeam)
     
     # count goals at Home and Away and create cumulative total per matchweek
     for (t in teamnames){
-      HTS=matrix(rep(0,2*19),ncol = 2)
-      ATS=matrix(rep(0,2*19),ncol = 2)
+      HTS=matrix(rep(0,2*(n.teams-1)),ncol = 2)
+      ATS=matrix(rep(0,2*(n.teams-1)),ncol = 2)
       for (i in 1:sum(playing_stat$HomeTeam==t)){
         HTS[i,]=t(c(playing_stat[which(playing_stat$HomeTeam==t)[i],"HS"],playing_stat[which(playing_stat$HomeTeam==t)[i],c("Date")]))
       }
@@ -249,13 +253,13 @@ ENG_preparation <- function(include_odds){
   
   get_shots_on_target=function(playing_stat){
     # Create a dictionary with team names as keys
-    shots_on_target = matrix(rep(0,2*380),ncol=38)
+    shots_on_target = matrix(rep(0,2*n.teams*(n.teams-1)),ncol=2*(n.teams-1))
     teamnames=unique(playing_stat$HomeTeam)
     
     # count goals at Home and Away and create cumulative total per matchweek
     for (t in teamnames){
-      HTST=matrix(rep(0,2*19),ncol = 2)
-      ATST=matrix(rep(0,2*19),ncol = 2)
+      HTST=matrix(rep(0,2*(n.teams-1)),ncol = 2)
+      ATST=matrix(rep(0,2*(n.teams-1)),ncol = 2)
       for (i in 1:sum(playing_stat$HomeTeam==t)){
         HTST[i,]=t(c(playing_stat[which(playing_stat$HomeTeam==t)[i],c("HST")],as.numeric(as.Date(playing_stat[which(playing_stat$HomeTeam==t)[i],c("Date")]))))
       }
@@ -296,7 +300,7 @@ ENG_preparation <- function(include_odds){
       HTST[i]=shotstarget[ht,j]
       ATST[i]=shotstarget[at,j]
       
-      if ((i %% 10) == 0){
+      if ((i %% (n.teams/2)) == 0){
         j = j + 1
       }
       
@@ -326,7 +330,7 @@ ENG_preparation <- function(include_odds){
   playing_statistics_15 = get_sst(playing_statistics_15)
   playing_statistics_16 = get_sst(playing_statistics_16)
   playing_statistics_17 = get_sst(playing_statistics_17)
-  #playing_statistics_18 = get_sst(playing_statistics_18)
+  playing_statistics_18 = get_sst(playing_statistics_18)
   
   # get respective points
   get_points_gained=function(playing_stat){
@@ -392,7 +396,7 @@ ENG_preparation <- function(include_odds){
       HTP[i]=PG[ht,j]
       ATP[i]=PG[at,j]
       
-      if ((i %% 10) == 0){
+      if ((i %% (n.teams/2)) == 0){
         j = j + 1
       }
       
@@ -420,7 +424,7 @@ ENG_preparation <- function(include_odds){
   playing_statistics_15 = get_agg_points(playing_statistics_15)
   playing_statistics_16 = get_agg_points(playing_statistics_16)
   playing_statistics_17 = get_agg_points(playing_statistics_17)
-  #playing_statistics_18 = get_agg_points(playing_statistics_18)
+  playing_statistics_18 = get_agg_points(playing_statistics_18)
   
   if (include_odds){
     ## to include the odds of InterWetten
@@ -452,14 +456,14 @@ ENG_preparation <- function(include_odds){
   playing_statistics_15 = playing_statistics_15[cols]
   playing_statistics_16 = playing_statistics_16[cols]
   playing_statistics_17 = playing_statistics_17[cols]
-  #playing_statistics_18 = playing_statistics_18[cols]
+  playing_statistics_18 = playing_statistics_18[cols]
   
   #Get Last Year's Position as also an independent variable:
   Standings = read.csv("yearly_updated_data/EPLStandings.csv", sep = ";")
   Standings[,1]=str_replace_all(Standings[,1], fixed(" "), "")
   rownames(Standings)=Standings[,1]
   Standings=Standings[,-1]
-  Standings[is.na(Standings)]=18
+  Standings[is.na(Standings)]=(n.teams-2)
   
   get_last=function(playing_stat, Standings, year){
     HomeTeamLP = rep(0,nrow(playing_stat))
@@ -492,7 +496,7 @@ ENG_preparation <- function(include_odds){
   playing_statistics_15 = get_last(playing_statistics_15, Standings, "X2014")
   playing_statistics_16 = get_last(playing_statistics_16, Standings, "X2015")
   playing_statistics_17 = get_last(playing_statistics_17, Standings, "X2016")
-  #playing_statistics_18 = get_last(playing_statistics_18, Standings, "X2017")
+  playing_statistics_18 = get_last(playing_statistics_18, Standings, "X2017")
   
   #Get average age as also an independent variable:
   AvgAge = read.csv("yearly_updated_data/AvgAge.csv", sep = ",")
@@ -531,7 +535,7 @@ ENG_preparation <- function(include_odds){
   playing_statistics_15 = get_AvgAge(playing_statistics_15, AvgAge, "X2014")
   playing_statistics_16 = get_AvgAge(playing_statistics_16, AvgAge, "X2015")
   playing_statistics_17 = get_AvgAge(playing_statistics_17, AvgAge, "X2016")
-  #playing_statistics_18 = get_AvgAge(playing_statistics_18, AvgAge, "X2017")
+  playing_statistics_18 = get_AvgAge(playing_statistics_18, AvgAge, "X2017")
   
   #Get average Market Value as also an independent variable:
   AvgMV = read.csv("yearly_updated_data/AvgMV.csv", sep = ";")
@@ -571,7 +575,7 @@ ENG_preparation <- function(include_odds){
   playing_statistics_15 = get_AvgMV(playing_statistics_15, AvgMV, "X2014")
   playing_statistics_16 = get_AvgMV(playing_statistics_16, AvgMV, "X2015")
   playing_statistics_17 = get_AvgMV(playing_statistics_17, AvgMV, "X2016")
-  #playing_statistics_18 = get_AvgMV(playing_statistics_18, AvgMV, "X2017")
+  playing_statistics_18 = get_AvgMV(playing_statistics_18, AvgMV, "X2017")
   
   #Get MatchWeek
   get_mw=function(playing_stat){
@@ -579,7 +583,7 @@ ENG_preparation <- function(include_odds){
     MatchWeek = rep(0,nrow(playing_stat))
     for (i in 1:nrow(playing_stat)){
       MatchWeek[i]=j
-      if ((i %% 10) == 0){
+      if ((i %% (n.teams/2)) == 0){
         j = j + 1
       }
     }
@@ -604,7 +608,7 @@ ENG_preparation <- function(include_odds){
   playing_statistics_15 = get_mw(playing_statistics_15)
   playing_statistics_16 = get_mw(playing_statistics_16)
   playing_statistics_17 = get_mw(playing_statistics_17)
-  #playing_statistics_18 = get_mw(playing_statistics_18)
+  playing_statistics_18 = get_mw(playing_statistics_18)
   
   # Combining to one dataset, start up mv only available from nr. 7
   playing_stat = rbind(playing_statistics_7,
@@ -617,8 +621,8 @@ ENG_preparation <- function(include_odds){
                        playing_statistics_14,
                        playing_statistics_15,
                        playing_statistics_16,
-                       playing_statistics_17)
-                       #playing_statistics_18)
+                       playing_statistics_17,
+                       playing_statistics_18)
                        
                        # Form defined as result of the last 5 games
                        get_form=function(playing_stat,num){

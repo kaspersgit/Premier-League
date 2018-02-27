@@ -38,7 +38,7 @@ import_data_db <- function(include_odds){
                             esl.match_date,
                             esl.hometeam,
                             esl.awayteam,
-                            COALESCE(epm1.season,epm8.season,epm15.season,epm22.season) AS season,
+                            COALESCE(epm1.season,epm5.season,epm8.season,epm12.season,epm15.season,epm19.season,epm22.season) AS season,
                             COALESCE(epm1.MV,1000) AS hmv1,
                             COALESCE(epm2.MV,1000) AS hmv2,
                             COALESCE(epm3.MV,1000) AS hmv3,
