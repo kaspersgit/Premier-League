@@ -7,12 +7,12 @@ ENG_preparation <- function(include_odds){
   
   
   #making sure the underneath doesnt include season == NULL
-  raw.data.1 = all_data[which(all_data$season== 20002001),]
-  raw.data.2 = all_data[which(all_data$season== 20012002),]
-  raw.data.3 = all_data[which(all_data$season== 20022003),]
-  raw.data.4 = all_data[which(all_data$season== 20032004),]
-  raw.data.5 = all_data[which(all_data$season== 20042005),]
-  raw.data.6 = all_data[which(all_data$season== 20052006),]
+  # raw.data.1 = all_data[which(all_data$season== 20002001),]
+  # raw.data.2 = all_data[which(all_data$season== 20012002),]
+  # raw.data.3 = all_data[which(all_data$season== 20022003),]
+  # raw.data.4 = all_data[which(all_data$season== 20032004),]
+  # raw.data.5 = all_data[which(all_data$season== 20042005),]
+  # raw.data.6 = all_data[which(all_data$season== 20052006),]
   raw.data.7 = all_data[which(all_data$season== 20062007),]
   raw.data.8 = all_data[which(all_data$season== 20072008),]
   raw.data.9 = all_data[which(all_data$season== 20082009),]
@@ -32,23 +32,23 @@ ENG_preparation <- function(include_odds){
   
   # using the expected details and lineups saved in ENG_exp_lineups 
   next.matches=exp_data
-
+  
   fixtures=as.data.frame(matrix(rep(0,ncol(raw.data.18)*nrow(exp_data)),nrow=nrow(exp_data)))
   names(fixtures)=names(raw.data.18)
   #fixturesv <- merge(next.matches,fixtures, by.x = intersect(names(fixtures), names(next.matches)))
   fixtures[,intersect(names(fixtures), names(next.matches))] <- next.matches[,intersect(names(fixtures), names(next.matches))]
   
-   #filling the dataframe with coming weeks matches
-   fixtures$mid=c((max(all_data$mid)+1):(max(all_data$mid)+10))
-   fixtures$Date=next.matches$match_date
-   fixtures$Div=rep("E0",nrow(fixtures))
-   fixtures$HomeTeam=next.matches$hometeam
-   fixtures$AwayTeam=next.matches$awayteam
-   fixtures$FTR=rep("D",nrow(fixtures))
-   fixtures$HTR=rep("D",nrow(fixtures))
-   fixtures$Referee=rep("D",nrow(fixtures))
-
-   raw.data.18=rbind(raw.data.18,fixtures)
+  #filling the dataframe with coming weeks matches
+  fixtures$mid=c((max(all_data$mid)+1):(max(all_data$mid)+nrow(fixtures)))
+  fixtures$Date=next.matches$match_date
+  fixtures$Div=rep("E0",nrow(fixtures))
+  fixtures$HomeTeam=next.matches$hometeam
+  fixtures$AwayTeam=next.matches$awayteam
+  fixtures$FTR=rep("D",nrow(fixtures))
+  fixtures$HTR=rep("D",nrow(fixtures))
+  fixtures$Referee=rep("D",nrow(fixtures))
+  
+  raw.data.18=rbind(raw.data.18,fixtures)
   
   
   delete.spaces=function(rawdata){
@@ -57,12 +57,12 @@ ENG_preparation <- function(include_odds){
     return(rawdata)
   }
   
-  raw.data.1=delete.spaces(raw.data.1)
-  raw.data.2=delete.spaces(raw.data.2)
-  raw.data.3=delete.spaces(raw.data.3)
-  raw.data.4=delete.spaces(raw.data.4)
-  raw.data.5=delete.spaces(raw.data.5)
-  raw.data.6=delete.spaces(raw.data.6)
+  # raw.data.1=delete.spaces(raw.data.1)
+  # raw.data.2=delete.spaces(raw.data.2)
+  # raw.data.3=delete.spaces(raw.data.3)
+  # raw.data.4=delete.spaces(raw.data.4)
+  # raw.data.5=delete.spaces(raw.data.5)
+  # raw.data.6=delete.spaces(raw.data.6)
   raw.data.7=delete.spaces(raw.data.7)
   raw.data.8=delete.spaces(raw.data.8)
   raw.data.9=delete.spaces(raw.data.9)
@@ -86,12 +86,12 @@ ENG_preparation <- function(include_odds){
   }
   
   
-  playing_statistics_1 = raw.data.1[!is.na(raw.data.1$Date),columns_req]
-  playing_statistics_2 = raw.data.2[!is.na(raw.data.2$Date),columns_req]
-  playing_statistics_3 = raw.data.3[!is.na(raw.data.3$Date),columns_req]
-  playing_statistics_4 = raw.data.4[!is.na(raw.data.4$Date),columns_req]
-  playing_statistics_5 = raw.data.5[!is.na(raw.data.5$Date),columns_req]
-  playing_statistics_6 = raw.data.6[!is.na(raw.data.6$Date),columns_req]
+  # playing_statistics_1 = raw.data.1[!is.na(raw.data.1$Date),columns_req]
+  # playing_statistics_2 = raw.data.2[!is.na(raw.data.2$Date),columns_req]
+  # playing_statistics_3 = raw.data.3[!is.na(raw.data.3$Date),columns_req]
+  # playing_statistics_4 = raw.data.4[!is.na(raw.data.4$Date),columns_req]
+  # playing_statistics_5 = raw.data.5[!is.na(raw.data.5$Date),columns_req]
+  # playing_statistics_6 = raw.data.6[!is.na(raw.data.6$Date),columns_req]
   playing_statistics_7 = raw.data.7[!is.na(raw.data.7$Date),columns_req]
   playing_statistics_8 = raw.data.8[!is.na(raw.data.8$Date),columns_req]
   playing_statistics_9 = raw.data.9[!is.na(raw.data.9$Date),columns_req]
@@ -139,7 +139,7 @@ ENG_preparation <- function(include_odds){
   
   get_goals_conceded=function(playing_stat){
     # Create a dictionary with team names as keys
-    goalsconceded = matrix(rep(0,2*(n.teams*(n.teams-1))),ncol=32*(n.teams-1))
+    goalsconceded = matrix(rep(0,2*(n.teams*(n.teams-1))),ncol=2*(n.teams-1))
     teamnames=unique(playing_stat$HomeTeam)
     
     # count goals at Home and Away and create cumulative total per matchweek
@@ -199,12 +199,12 @@ ENG_preparation <- function(include_odds){
   }
   
   # Apply to each dataset
-  playing_statistics_1 = get_gss(playing_statistics_1)
-  playing_statistics_2 = get_gss(playing_statistics_2)
-  playing_statistics_3 = get_gss(playing_statistics_3)
-  playing_statistics_4 = get_gss(playing_statistics_4)
-  playing_statistics_5 = get_gss(playing_statistics_5)
-  playing_statistics_6 = get_gss(playing_statistics_6)
+  # playing_statistics_1 = get_gss(playing_statistics_1)
+  # playing_statistics_2 = get_gss(playing_statistics_2)
+  # playing_statistics_3 = get_gss(playing_statistics_3)
+  # playing_statistics_4 = get_gss(playing_statistics_4)
+  # playing_statistics_5 = get_gss(playing_statistics_5)
+  # playing_statistics_6 = get_gss(playing_statistics_6)
   playing_statistics_7 = get_gss(playing_statistics_7)
   playing_statistics_8 = get_gss(playing_statistics_8)
   playing_statistics_9 = get_gss(playing_statistics_9)
@@ -313,12 +313,12 @@ ENG_preparation <- function(include_odds){
   }
   
   # Apply to each dataset
-  playing_statistics_1 = get_sst(playing_statistics_1)
-  playing_statistics_2 = get_sst(playing_statistics_2)
-  playing_statistics_3 = get_sst(playing_statistics_3)
-  playing_statistics_4 = get_sst(playing_statistics_4)
-  playing_statistics_5 = get_sst(playing_statistics_5)
-  playing_statistics_6 = get_sst(playing_statistics_6)
+  # playing_statistics_1 = get_sst(playing_statistics_1)
+  # playing_statistics_2 = get_sst(playing_statistics_2)
+  # playing_statistics_3 = get_sst(playing_statistics_3)
+  # playing_statistics_4 = get_sst(playing_statistics_4)
+  # playing_statistics_5 = get_sst(playing_statistics_5)
+  # playing_statistics_6 = get_sst(playing_statistics_6)
   playing_statistics_7 = get_sst(playing_statistics_7)
   playing_statistics_8 = get_sst(playing_statistics_8)
   playing_statistics_9 = get_sst(playing_statistics_9)
@@ -407,12 +407,12 @@ ENG_preparation <- function(include_odds){
   }
   
   # Apply to each dataset
-  playing_statistics_1 = get_agg_points(playing_statistics_1)
-  playing_statistics_2 = get_agg_points(playing_statistics_2)
-  playing_statistics_3 = get_agg_points(playing_statistics_3)
-  playing_statistics_4 = get_agg_points(playing_statistics_4)
-  playing_statistics_5 = get_agg_points(playing_statistics_5)
-  playing_statistics_6 = get_agg_points(playing_statistics_6)
+  # playing_statistics_1 = get_agg_points(playing_statistics_1)
+  # playing_statistics_2 = get_agg_points(playing_statistics_2)
+  # playing_statistics_3 = get_agg_points(playing_statistics_3)
+  # playing_statistics_4 = get_agg_points(playing_statistics_4)
+  # playing_statistics_5 = get_agg_points(playing_statistics_5)
+  # playing_statistics_6 = get_agg_points(playing_statistics_6)
   playing_statistics_7 = get_agg_points(playing_statistics_7)
   playing_statistics_8 = get_agg_points(playing_statistics_8)
   playing_statistics_9 = get_agg_points(playing_statistics_9)
@@ -439,12 +439,12 @@ ENG_preparation <- function(include_odds){
   
   
   
-  playing_statistics_1 = playing_statistics_1[cols]
-  playing_statistics_2 = playing_statistics_2[cols]
-  playing_statistics_3 = playing_statistics_3[cols]
-  playing_statistics_4 = playing_statistics_4[cols]
-  playing_statistics_5 = playing_statistics_5[cols]
-  playing_statistics_6 = playing_statistics_6[cols]
+  # playing_statistics_1 = playing_statistics_1[cols]
+  # playing_statistics_2 = playing_statistics_2[cols]
+  # playing_statistics_3 = playing_statistics_3[cols]
+  # playing_statistics_4 = playing_statistics_4[cols]
+  # playing_statistics_5 = playing_statistics_5[cols]
+  # playing_statistics_6 = playing_statistics_6[cols]
   playing_statistics_7 = playing_statistics_7[cols]
   playing_statistics_8 = playing_statistics_8[cols]
   playing_statistics_9 = playing_statistics_9[cols]
@@ -479,12 +479,12 @@ ENG_preparation <- function(include_odds){
     return (playing_stat)
   }
   
-  playing_statistics_1 = get_last(playing_statistics_1, Standings, "X2000")
-  playing_statistics_2 = get_last(playing_statistics_2, Standings, "X2001")
-  playing_statistics_3 = get_last(playing_statistics_3, Standings, "X2002")
-  playing_statistics_4 = get_last(playing_statistics_4, Standings, "X2003")
-  playing_statistics_5 = get_last(playing_statistics_5, Standings, "X2004")
-  playing_statistics_6 = get_last(playing_statistics_6, Standings, "X2005")
+  # playing_statistics_1 = get_last(playing_statistics_1, Standings, "X2000")
+  # playing_statistics_2 = get_last(playing_statistics_2, Standings, "X2001")
+  # playing_statistics_3 = get_last(playing_statistics_3, Standings, "X2002")
+  # playing_statistics_4 = get_last(playing_statistics_4, Standings, "X2003")
+  # playing_statistics_5 = get_last(playing_statistics_5, Standings, "X2004")
+  # playing_statistics_6 = get_last(playing_statistics_6, Standings, "X2005")
   playing_statistics_7 = get_last(playing_statistics_7, Standings, "X2006")
   playing_statistics_8 = get_last(playing_statistics_8, Standings, "X2007")
   playing_statistics_9 = get_last(playing_statistics_9, Standings, "X2008")
@@ -518,12 +518,12 @@ ENG_preparation <- function(include_odds){
     return (playing_stat)
   }
   
-  playing_statistics_1 = get_AvgAge(playing_statistics_1, AvgAge, "X2000")
-  playing_statistics_2 = get_AvgAge(playing_statistics_2, AvgAge, "X2001")
-  playing_statistics_3 = get_AvgAge(playing_statistics_3, AvgAge, "X2002")
-  playing_statistics_4 = get_AvgAge(playing_statistics_4, AvgAge, "X2003")
-  playing_statistics_5 = get_AvgAge(playing_statistics_5, AvgAge, "X2004")
-  playing_statistics_6 = get_AvgAge(playing_statistics_6, AvgAge, "X2005")
+  # playing_statistics_1 = get_AvgAge(playing_statistics_1, AvgAge, "X2000")
+  # playing_statistics_2 = get_AvgAge(playing_statistics_2, AvgAge, "X2001")
+  # playing_statistics_3 = get_AvgAge(playing_statistics_3, AvgAge, "X2002")
+  # playing_statistics_4 = get_AvgAge(playing_statistics_4, AvgAge, "X2003")
+  # playing_statistics_5 = get_AvgAge(playing_statistics_5, AvgAge, "X2004")
+  # playing_statistics_6 = get_AvgAge(playing_statistics_6, AvgAge, "X2005")
   playing_statistics_7 = get_AvgAge(playing_statistics_7, AvgAge, "X2006")
   playing_statistics_8 = get_AvgAge(playing_statistics_8, AvgAge, "X2007")
   playing_statistics_9 = get_AvgAge(playing_statistics_9, AvgAge, "X2008")
@@ -563,7 +563,7 @@ ENG_preparation <- function(include_odds){
   # playing_statistics_3 = get_AvgMV(playing_statistics_3, AvgMV, "X2002")
   # playing_statistics_4 = get_AvgMV(playing_statistics_4, AvgMV, "X2003")
   # playing_statistics_5 = get_AvgMV(playing_statistics_5, AvgMV, "X2004")
-  playing_statistics_6 = get_AvgMV(playing_statistics_6, AvgMV, "X2005")
+  # playing_statistics_6 = get_AvgMV(playing_statistics_6, AvgMV, "X2005")
   playing_statistics_7 = get_AvgMV(playing_statistics_7, AvgMV, "X2006")
   playing_statistics_8 = get_AvgMV(playing_statistics_8, AvgMV, "X2007")
   playing_statistics_9 = get_AvgMV(playing_statistics_9, AvgMV, "X2008")
@@ -591,12 +591,12 @@ ENG_preparation <- function(include_odds){
     return(playing_stat)
   }
   
-  playing_statistics_1 = get_mw(playing_statistics_1)
-  playing_statistics_2 = get_mw(playing_statistics_2)
-  playing_statistics_3 = get_mw(playing_statistics_3)
-  playing_statistics_4 = get_mw(playing_statistics_4)
-  playing_statistics_5 = get_mw(playing_statistics_5)
-  playing_statistics_6 = get_mw(playing_statistics_6)
+  # playing_statistics_1 = get_mw(playing_statistics_1)
+  # playing_statistics_2 = get_mw(playing_statistics_2)
+  # playing_statistics_3 = get_mw(playing_statistics_3)
+  # playing_statistics_4 = get_mw(playing_statistics_4)
+  # playing_statistics_5 = get_mw(playing_statistics_5)
+  # playing_statistics_6 = get_mw(playing_statistics_6)
   playing_statistics_7 = get_mw(playing_statistics_7)
   playing_statistics_8 = get_mw(playing_statistics_8)
   playing_statistics_9 = get_mw(playing_statistics_9)
@@ -623,132 +623,132 @@ ENG_preparation <- function(include_odds){
                        playing_statistics_16,
                        playing_statistics_17,
                        playing_statistics_18)
-                       
-                       # Form defined as result of the last 5 games
-                       get_form=function(playing_stat,num){
-                         form = get_points_gained(playing_stat)
-                         form_final = form*0
-                         n_teams = length(unique(playing_stat$HomeTeam))
-                         n_rounds = ceiling(nrow(playing_stat)/(n_teams/2))
-                         for (i in (num+1):(n_rounds)){
-                           form_final[,i] = form[,i]-form[,i-min(num,i+1)]
-                         }
-                         return(form_final)
-                       }
-                       
-                       add_form=function(playing_stat,num){
-                         form = get_form(playing_stat,num)
-                         n_teams = length(unique(playing_stat$HomeTeam))
-                         n_rounds = ceiling(nrow(playing_stat)/(n.teams/2))
-                         
-                         h=vector(mode="numeric",nrow(playing_stat))
-                         a=vector(mode="numeric",nrow(playing_stat))
-                         for (i in 1:(num*(n.teams/2))){
-                           h[i] = 0  # since form is not available for n MW (n*10)
-                           a[i] = 0 
-                         }
-                         j = num+1
-                         for (i in (num*(n.teams/2)+1):nrow(playing_stat)){
-                           ht = playing_stat$HomeTeam[i]
-                           at = playing_stat$AwayTeam[i]
-                           
-                           past = form[ht,j]               # get past n results
-                           h[i]=past                   # 1 index is most recent
-                           
-                           past = form[at,j]               # get past n results.
-                           a[i]=past                  # 1 index is most recent
-                           
-                           if ((i %% (n.teams/2)) == 0){
-                             j = j + 1
-                           }
-                         }
-                         
-                         playing_stat[paste('HM',num,sep = "")] = h                 
-                         playing_stat[paste('AM',num,sep = "")] = a
-                         
-                         
-                         return(playing_stat)
-                       }
-                       
-                       add_form_df=function(playing_statistics){
-                         amount.games=nrow(playing_statistics)
-                         if(amount.games>=2*(n.teams/2)){playing_statistics = add_form(playing_statistics,1)}
-                         if(amount.games>=3*(n.teams/2)){playing_statistics = add_form(playing_statistics,2)}
-                         if(amount.games>=4*(n.teams/2)){playing_statistics = add_form(playing_statistics,3)}
-                         if(amount.games>=5*(n.teams/2)){playing_statistics = add_form(playing_statistics,4)}
-                         if(amount.games>=6*(n.teams/2)){playing_statistics = add_form(playing_statistics,5)}
-                         if(amount.games>=11*(n.teams/2)){playing_statistics = add_form(playing_statistics,10)}
-                         if(amount.games>=21*(n.teams/2)){playing_statistics = add_form(playing_statistics,20)}
-                         return(playing_statistics)
-                       }
-                       
-                       # adding form of last match in same situation (home/away)
-                       add_form_same_venue = function(playing_statistics){
-                         
-                         hmh1=vector(mode="numeric",nrow(playing_stat))
-                         ama1=vector(mode="numeric",nrow(playing_stat))
-                         
-                         for (i in (n.teams/2+1):nrow(playing_statistics)){
-                           home=playing_statistics$HomeTeam[i]
-                           away=playing_statistics$AwayTeam[i]
-                           
-                           # subset data until the game, so it is easier to get the last game from this team
-                           hist_data = playing_statistics[1:i,]
-                           
-                           home_last_result=hist_data$FTR[tail(which(hist_data$HomeTeam==home),2)[1]]
-                           away_last_result=hist_data$FTR[tail(which(hist_data$AwayTeam==away),2)[1]]
-                           
-                           hmh1[i]=ifelse(home_last_result=='H',3,ifelse(home_last_result=='D',1,0))
-                           ama1[i]=ifelse(away_last_result=='A',3,ifelse(away_last_result=='D',1,0))
-                           
-                         }
-                         playing_statistics['HMH1']=hmh1
-                         playing_statistics['AMA1']=ama1
-                         
-                         return(playing_statistics)
-                         
-                       }
-                       
-                       # Add points from last 1/3/5/10 and 20 games
-                       playing_stat = add_form_df(playing_stat)
-                       
-                       # Add points from last match on same venue situation (home/away)
-                       playing_stat = add_form_same_venue(playing_stat)
-                       
-                       ### Add distance between clubs playing grounds (air distance in km) 
-                       distances=read.csv("yearly_updated_data/distances.csv",row.names = 1)
-                       colnames(distances)=str_replace_all(colnames(distances), fixed("."), "")
-                       rownames(distances)=str_replace_all(rownames(distances), fixed(" "), "")
-                       
-                       get_distance=function(playing_statd){
-                         Distance = rep(0,nrow(playing_statd))
-                         for (i in 1:nrow(playing_statd)){
-                           ht = playing_statd$HomeTeam[i]
-                           at = playing_statd$AwayTeam[i]
-                           Distance[i]=distances[ht,at]
-                         } 
-                         playing_statd["Distance"] = Distance
-                         return (playing_statd)
-                       }
-                       
-                       playing_stat=get_distance(playing_stat)
-                       
-                       # Get Goal Difference
-                       playing_stat['HTGD'] = as.numeric(unlist(playing_stat['HTGS'])) - as.numeric(unlist(playing_stat['HTGC']))
-                       playing_stat['ATGD'] = as.numeric(unlist(playing_stat['ATGS'])) - as.numeric(unlist(playing_stat['ATGC']))
-                       
-                       # Diff in points
-                       playing_stat['DiffPts'] = playing_stat['HTP'] - playing_stat['ATP']
-                       
-                       # Diff in last year positions
-                       playing_stat['DiffLP'] = playing_stat['HomeTeamLP'] - playing_stat['AwayTeamLP']
-                       
-                       # Scale DiffPts , DiffFormPts, HTGD, ATGD by Matchweek.
-                       cols = c('HTGD','ATGD','DiffPts','HTP','ATP','HTS','ATS','HTST','ATST')
-                       
-                       for (col in cols){
-                         playing_stat[col] = as.numeric(unlist(playing_stat[col])) / as.numeric(unlist(playing_stat$MW))
-                       }
-                       
-                       write.csv(playing_stat,"ENG_final_dataset.csv")
+  
+  # Form defined as result of the last 5 games
+  get_form=function(playing_stat,num){
+    form = get_points_gained(playing_stat)
+    form_final = form*0
+    n_teams = length(unique(playing_stat$HomeTeam))
+    n_rounds = ceiling(nrow(playing_stat)/(n_teams/2))
+    for (i in (num+1):(n_rounds)){
+      form_final[,i] = form[,i]-form[,i-min(num,i+1)]
+    }
+    return(form_final)
+  }
+  
+  add_form=function(playing_stat,num){
+    form = get_form(playing_stat,num)
+    n_teams = length(unique(playing_stat$HomeTeam))
+    n_rounds = ceiling(nrow(playing_stat)/(n.teams/2))
+    
+    h=vector(mode="numeric",nrow(playing_stat))
+    a=vector(mode="numeric",nrow(playing_stat))
+    for (i in 1:(num*(n.teams/2))){
+      h[i] = 0  # since form is not available for n MW (n*10)
+      a[i] = 0 
+    }
+    j = num+1
+    for (i in (num*(n.teams/2)+1):nrow(playing_stat)){
+      ht = playing_stat$HomeTeam[i]
+      at = playing_stat$AwayTeam[i]
+      
+      past = form[ht,j]               # get past n results
+      h[i]=past                   # 1 index is most recent
+      
+      past = form[at,j]               # get past n results.
+      a[i]=past                  # 1 index is most recent
+      
+      if ((i %% (n.teams/2)) == 0){
+        j = j + 1
+      }
+    }
+    
+    playing_stat[paste('HM',num,sep = "")] = h                 
+    playing_stat[paste('AM',num,sep = "")] = a
+    
+    
+    return(playing_stat)
+  }
+  
+  add_form_df=function(playing_statistics){
+    amount.games=nrow(playing_statistics)
+    if(amount.games>=2*(n.teams/2)){playing_statistics = add_form(playing_statistics,1)}
+    if(amount.games>=3*(n.teams/2)){playing_statistics = add_form(playing_statistics,2)}
+    if(amount.games>=4*(n.teams/2)){playing_statistics = add_form(playing_statistics,3)}
+    if(amount.games>=5*(n.teams/2)){playing_statistics = add_form(playing_statistics,4)}
+    if(amount.games>=6*(n.teams/2)){playing_statistics = add_form(playing_statistics,5)}
+    if(amount.games>=11*(n.teams/2)){playing_statistics = add_form(playing_statistics,10)}
+    if(amount.games>=21*(n.teams/2)){playing_statistics = add_form(playing_statistics,20)}
+    return(playing_statistics)
+  }
+  
+  # adding form of last match in same situation (home/away)
+  add_form_same_venue = function(playing_statistics){
+    
+    hmh1=vector(mode="numeric",nrow(playing_stat))
+    ama1=vector(mode="numeric",nrow(playing_stat))
+    
+    for (i in (n.teams/2+1):nrow(playing_statistics)){
+      home=playing_statistics$HomeTeam[i]
+      away=playing_statistics$AwayTeam[i]
+      
+      # subset data until the game, so it is easier to get the last game from this team
+      hist_data = playing_statistics[1:i,]
+      
+      home_last_result=hist_data$FTR[tail(which(hist_data$HomeTeam==home),2)[1]]
+      away_last_result=hist_data$FTR[tail(which(hist_data$AwayTeam==away),2)[1]]
+      
+      hmh1[i]=ifelse(home_last_result=='H',3,ifelse(home_last_result=='D',1,0))
+      ama1[i]=ifelse(away_last_result=='A',3,ifelse(away_last_result=='D',1,0))
+      
+    }
+    playing_statistics['HMH1']=hmh1
+    playing_statistics['AMA1']=ama1
+    
+    return(playing_statistics)
+    
+  }
+  
+  # Add points from last 1/3/5/10 and 20 games
+  playing_stat = add_form_df(playing_stat)
+  
+  # Add points from last match on same venue situation (home/away)
+  playing_stat = add_form_same_venue(playing_stat)
+  
+  ### Add distance between clubs playing grounds (air distance in km) 
+  distances=read.csv("yearly_updated_data/distances.csv",row.names = 1)
+  colnames(distances)=str_replace_all(colnames(distances), fixed("."), "")
+  rownames(distances)=str_replace_all(rownames(distances), fixed(" "), "")
+  
+  get_distance=function(playing_statd){
+    Distance = rep(0,nrow(playing_statd))
+    for (i in 1:nrow(playing_statd)){
+      ht = playing_statd$HomeTeam[i]
+      at = playing_statd$AwayTeam[i]
+      Distance[i]=distances[ht,at]
+    } 
+    playing_statd["Distance"] = Distance
+    return (playing_statd)
+  }
+  
+  playing_stat=get_distance(playing_stat)
+  
+  # Get Goal Difference
+  playing_stat['HTGD'] = as.numeric(unlist(playing_stat['HTGS'])) - as.numeric(unlist(playing_stat['HTGC']))
+  playing_stat['ATGD'] = as.numeric(unlist(playing_stat['ATGS'])) - as.numeric(unlist(playing_stat['ATGC']))
+  
+  # Diff in points
+  playing_stat['DiffPts'] = playing_stat['HTP'] - playing_stat['ATP']
+  
+  # Diff in last year positions
+  playing_stat['DiffLP'] = playing_stat['HomeTeamLP'] - playing_stat['AwayTeamLP']
+  
+  # Scale DiffPts , DiffFormPts, HTGD, ATGD by Matchweek.
+  cols = c('HTGD','ATGD','DiffPts','HTP','ATP','HTS','ATS','HTST','ATST')
+  
+  for (col in cols){
+    playing_stat[col] = as.numeric(unlist(playing_stat[col])) / as.numeric(unlist(playing_stat$MW))
+  }
+  
+  write.csv(playing_stat,"ENG_final_dataset.csv")
 }
