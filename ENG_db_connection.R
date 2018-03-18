@@ -10,7 +10,6 @@ import_data_db <- function(include_odds){
                               	emh.*,
                               	emsm.home_start_mv,
                               	emsm.away_start_mv,
-                                season,
                                 IWH,
                                 IWD,
                                 IWA,
@@ -146,8 +145,7 @@ import_data_db <- function(include_odds){
                             SELECT 
                             emh.*,
                             emsm.home_start_mv,
-                            emsm.away_start_mv,
-                            season
+                            emsm.away_start_mv
                             FROM 
                             ENG_matches_hist AS emh
                             LEFT JOIN step2 AS emsm 

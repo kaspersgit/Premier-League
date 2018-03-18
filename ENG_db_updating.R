@@ -20,6 +20,16 @@ ENG_db_updating <- function(){
                             FROM 
                               "2017"'))
   
+  count_matches_hist <- as.numeric(dbGetQuery(con,'SELECT 
+                                                COUNT(*)
+                                                FROM 
+                                                ENG_matches_hist'))
+  
+  count_lineup_hist <- as.numeric(dbGetQuery(con,'SELECT 
+                                                COUNT(*)
+                                                FROM 
+                                                ENG_match_lineup'))
+  
   # Import match detail data from internet (updated csv file)
   raw.data.18 = read.csv("http://www.football-data.co.uk/mmz4281/1718/E0.csv")
   raw.data.18$Date = as.Date(raw.data.18$Date,"%d/%m/%y")
@@ -55,7 +65,7 @@ ENG_db_updating <- function(){
   
   ## Now for updating the lineup tables, through the ENG_R_lineup_input table
   # this check is based on the table which is updated above. Below we actually update another table, need to make a check if that table is updated
-  if (last_game_in_db < last_game_available){
+  if (count_lineup_hist < count_matches_hist){
       
     # Create dataframe with one row and the correct colnames
     match_lineups=data.frame(matrix(rep(0,26),nrow=1))
@@ -77,7 +87,7 @@ ENG_db_updating <- function(){
       unique_matches_link=unique(all_matches_link)
       
       # matches which are not yet tracked (should maybe take extra matches in past and do a delete duplicates join to avoid different updates of the two source sites)
-      non_captured_matches <- unique_matches_link[(last_game_in_db+1):last_game_available]
+      non_captured_matches <- unique_matches_link[((count_lineup_hist %% 380)+1):(last_game_available %% 380)]
       
       # For every link of the matches not yet in the db scrape the lineups
       for (match_link in non_captured_matches){
