@@ -106,22 +106,28 @@ if (give_bf_odds('ENG')!=0){
   test_prediction$Drawodd=1/test_prediction$Draw
   test_prediction$Awayodd=1/test_prediction$Away
   
-  # Using BF odds to see wat the best bet is
+  # Using BF odds to see what the best bet is
+  # Getting the odds from BetFair
   bf_odds = give_bf_odds('ENG')
   bf_odds = bf_odds[1:10,]
   bf_odds = data.frame(bf_odds)
+  
+  # Adding our predicted odds
   test_prediction = data.frame(test_prediction[,c("HomeTeam","AwayTeam","PredictedOutcome","Homeodd","Drawodd","Awayodd")])
   real_and_predicted = merge(x = bf_odds, y = test_prediction, by = c("HomeTeam","AwayTeam"), all.x = TRUE)
+  
+  # See what the best deal is according to the ratio between BF odds and our odds
   pred_real_oddratio = real_and_predicted[,c("BF_H_odds","BF_D_odds","BF_A_odds")]/real_and_predicted[,c("Homeodd","Drawodd","Awayodd")]
   best_ratio = apply(pred_real_oddratio,1,max)
   best_ratio_outcome = max.col(pred_real_oddratio)
   best_ratio_outcome = ifelse(best_ratio_outcome == 1, "H",ifelse(best_ratio_outcome == 2,"D","A"))
   
+  # Put all columns together 
   real_and_predicted = real_and_predicted[,c("Date","HomeTeam","AwayTeam","PredictedOutcome","Homeodd","Drawodd","Awayodd",
                                              "BF_H_odds","BF_D_odds","BF_A_odds")]
   real_and_predicted = cbind(real_and_predicted,best_ratio,best_ratio_outcome)
   real_and_predicted = real_and_predicted[order(real_and_predicted$Date),]
   
-  
+  # Right prediction in csv file with mw and dat of first game as title, should be written into an sql table soon
   write.csv(real_and_predicted,paste("predictions_per_MW/prediction_MW",(nrow(dataf) %% 380)/10,"_",as.Date(head(dataf$Date,n=1),"%d/%m/%y"),".csv",sep = ""))
 }
