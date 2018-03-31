@@ -1,6 +1,6 @@
 setwd("D:/Het Project/Voetbal predictions/Premier-League")
 
-used.packages=c("xgboost","stringr","qlcMatrix","e1071")
+used.packages=c("xgboost","stringr","qlcMatrix","e1071","RSQLite","DBI")
 not.installed=!(used.packages %in% rownames(installed.packages()))
 if(length(used.packages[not.installed])>0){
   install.packages(used.packages[not.installed])
@@ -12,6 +12,8 @@ library("dplyr")    # for some data preperation
 library("stringr")
 library("DiagrammeR")
 library("qlcMatrix")
+library("RSQLite")
+library("DBI")
 
 if(!exists("foo", mode="function")) source("ENG_db_updating.R")
 if(!exists("foo", mode="function")) source("ENG_exp_lineups_V2.R")
@@ -20,7 +22,7 @@ if(!exists("foo", mode="function")) source("ENG_db_connection.R")
 if(!exists("foo", mode="function")) source("give_bf_odds.R")
 
 # Based on if there is a match within a week according to BetFair then run script
-if (give_bf_odds('ENG')!=0){
+if (nrow(give_bf_odds('ENG'))!=0){
   
   # Before starting the ENG_db_updating function we need to make sure the internet connection is good
   #If not this will end in an error halfway updating the DB, meaning we have to delete rows in some tables manually
@@ -123,11 +125,17 @@ if (give_bf_odds('ENG')!=0){
   best_ratio_outcome = ifelse(best_ratio_outcome == 1, "H",ifelse(best_ratio_outcome == 2,"D","A"))
   
   # Put all columns together 
-  real_and_predicted = real_and_predicted[,c("Date","HomeTeam","AwayTeam","PredictedOutcome","Homeodd","Drawodd","Awayodd",
+  real_and_predicted = real_and_predicted[,c("MatchDate","HomeTeam","AwayTeam","PredictedOutcome","Homeodd","Drawodd","Awayodd",
                                              "BF_H_odds","BF_D_odds","BF_A_odds")]
   real_and_predicted = cbind(real_and_predicted,best_ratio,best_ratio_outcome)
   real_and_predicted = real_and_predicted[order(real_and_predicted$Date),]
   
-  # Right prediction in csv file with mw and dat of first game as title, should be written into an sql table soon
-  write.csv(real_and_predicted,paste("predictions_per_MW/prediction_MW",(nrow(dataf) %% 380)/10,"_",as.Date(head(dataf$Date,n=1),"%d/%m/%y"),".csv",sep = ""))
-}
+  # Inserting timestamp on when the prediction was made
+  real_and_predicted$timestamp = Sys.time()
+  
+  # Wright prediction in csv file with mw and dat of first game as title, should be written into an sql table soon
+  write.csv(real_and_predicted,paste("predictions_per_MW/prediction_MW",(nrow(dataf) %% 380)/10,"_",as.Date(head(real_and_predicted$Date,n=1)),".csv",sep = ""))
+
+  # Wright predictions in sqlite database table
+  ENG_insert_predictions(real_and_predicted)
+  }

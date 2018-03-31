@@ -33,6 +33,16 @@ ENG_preparation <- function(include_odds){
   # using the expected details and lineups saved in ENG_exp_lineups 
   next.matches=exp_data
   
+  # If lineup was not found team mv will be 11000 by settings, then take last team mv
+  for (i in 1:nrow(next.matches)){
+    if (next.matches$home_start_mv[i] == 11000) {
+      last_mv = all_data$home_start_mv[tail(which(all_data$HomeTeam==next.matches$hometeam[i] & all_data$home_start_mv!=11000),1)]
+      if (length(last_mv)!=0){
+        next.matches$home_start_mv[i]=last_mv  
+      }
+    }  
+  }
+  
   fixtures=as.data.frame(matrix(rep(0,ncol(raw.data.18)*nrow(exp_data)),nrow=nrow(exp_data)))
   names(fixtures)=names(raw.data.18)
   #fixturesv <- merge(next.matches,fixtures, by.x = intersect(names(fixtures), names(next.matches)))
