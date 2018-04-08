@@ -1,4 +1,4 @@
-ENG_preparation <- function(include_odds){
+ENG_preparation <- function(n_teams,include_odds){
   #update_db()
   
   all_data = import_data_db(include_odds)[[1]]
@@ -28,7 +28,7 @@ ENG_preparation <- function(include_odds){
   
   # get the latest available data
   n.games=nrow(raw.data.18)
-  n.teams=length(unique(raw.data.17$HomeTeam))
+  n.teams=n_teams
   
   # using the expected details and lineups saved in ENG_exp_lineups 
   next.matches=exp_data
@@ -376,11 +376,11 @@ ENG_preparation <- function(include_odds){
       ATP=matrix(rep(0,2*n_rounds),ncol = 2)
       
       for (i in 1:sum(playing_stat$HomeTeam==t)){
-        w_round=ceiling(which(playing_stat$HomeTeam==t)[i]/10)
+        w_round=ceiling(which(playing_stat$HomeTeam==t)[i]/(n.teams/2))
         HTP[w_round,]=t(c(HFTR.point[which(playing_stat$HomeTeam==t)[i]],as.Date(playing_stat[which(playing_stat$HomeTeam==t)[i],c("Date")])))
       }
       for (i in 1:sum(playing_stat$AwayTeam==t)){
-        w_round=ceiling(which(playing_stat$AwayTeam==t)[i]/10)
+        w_round=ceiling(which(playing_stat$AwayTeam==t)[i]/(n.teams/2))
         ATP[w_round,]=t(c(AFTR.point[which(playing_stat$AwayTeam==t)[i]],as.Date(playing_stat[which(playing_stat$AwayTeam==t)[i],c("Date")])))
       }
       TP=HTP+ATP

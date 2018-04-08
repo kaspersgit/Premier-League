@@ -1,4 +1,4 @@
-ENG_db_updating <- function(){
+ENG_db_updating <- function(n_teams){
     
   setwd("D:/Het Project/Voetbal predictions/Premier-League")
   library(rvest)
@@ -87,7 +87,7 @@ ENG_db_updating <- function(){
       unique_matches_link=unique(all_matches_link)
       
       # matches which are not yet tracked (should maybe take extra matches in past and do a delete duplicates join to avoid different updates of the two source sites)
-      non_captured_matches <- unique_matches_link[((count_lineup_hist %% 380)+1):(last_game_available %% 380)]
+      non_captured_matches <- unique_matches_link[((count_lineup_hist %% (n_teams*(n_teams-1)))+1):(last_game_available %% (n_teams*(n_teams-1)))]
       
       # For every link of the matches not yet in the db scrape the lineups
       for (match_link in non_captured_matches){

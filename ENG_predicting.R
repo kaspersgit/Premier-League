@@ -20,6 +20,10 @@ if(!exists("foo", mode="function")) source("ENG_exp_lineups_V2.R")
 if(!exists("foo", mode="function")) source("ENG_cleaningandpreparing.R")
 if(!exists("foo", mode="function")) source("ENG_db_connection.R")
 if(!exists("foo", mode="function")) source("give_bf_odds.R")
+if(!exists("foo", mode="function")) source("ENG_db_save_prediction.R")
+
+# amount of teams per season in the highest league of the country
+n_teams = 20
 
 # Based on if there is a match within a week according to BetFair then run script
 if (nrow(give_bf_odds('ENG'))!=0){
@@ -27,10 +31,10 @@ if (nrow(give_bf_odds('ENG'))!=0){
   # Before starting the ENG_db_updating function we need to make sure the internet connection is good
   #If not this will end in an error halfway updating the DB, meaning we have to delete rows in some tables manually
   # First update the db
-  ENG_db_updating()
+  ENG_db_updating(n_teams)
   
   # import and prepare the data and eventually save it as csv
-  ENG_preparation(FALSE)
+  ENG_preparation(n_teams,FALSE)
   
   # download that csv for further use and prediction
   dataf=read.csv("ENG_final_dataset.csv")
@@ -48,6 +52,7 @@ if (nrow(give_bf_odds('ENG'))!=0){
   x_featured=x_all[,c('HTP', 'ATP','HTGD', 'ATGD',
                       "DiffPts",'HM3','AM3','HM5','AM5','HM10','AM10','HMH1','AMA1', 
                       'DiffLP','Distance','AwayAvgAge','HomeAvgAge','HomeAvgMV','AwayAvgMV',
+                      'home_start_mv','away_start_mv', 
                       'HTS','ATS','HTST','ATST')]
   
   df=cbind(x_featured,y_all)
@@ -59,7 +64,7 @@ if (nrow(give_bf_odds('ENG'))!=0){
   # set seed for reproducibility
   set.seed(999)
   # Make split index based on the last ten rows are the coming matches
-  fixtures.coming=c((nrow(dat)-9):nrow(dat))
+  fixtures.coming=c((nrow(dat)-(n_teams/2-1)):nrow(dat))
   train_index <- dat[-fixtures.coming,]
   # Full data set
   data_variables <- as.matrix(dat[,-which(names(dat)=="FTRC")])
@@ -111,7 +116,7 @@ if (nrow(give_bf_odds('ENG'))!=0){
   # Using BF odds to see what the best bet is
   # Getting the odds from BetFair
   bf_odds = give_bf_odds('ENG')
-  bf_odds = bf_odds[1:10,]
+  bf_odds = bf_odds[1:(n_teams/2),]
   bf_odds = data.frame(bf_odds)
   
   # Adding our predicted odds
@@ -125,16 +130,18 @@ if (nrow(give_bf_odds('ENG'))!=0){
   best_ratio_outcome = ifelse(best_ratio_outcome == 1, "H",ifelse(best_ratio_outcome == 2,"D","A"))
   
   # Put all columns together 
-  real_and_predicted = real_and_predicted[,c("MatchDate","HomeTeam","AwayTeam","PredictedOutcome","Homeodd","Drawodd","Awayodd",
+  real_and_predicted = real_and_predicted[,c("Date","HomeTeam","AwayTeam","PredictedOutcome","Homeodd","Drawodd","Awayodd",
                                              "BF_H_odds","BF_D_odds","BF_A_odds")]
+  names(real_and_predicted) =c("MatchDate","HomeTeam","AwayTeam","PredictedOutcome","Homeodd","Drawodd","Awayodd",
+                                             "BF_H_odds","BF_D_odds","BF_A_odds")
   real_and_predicted = cbind(real_and_predicted,best_ratio,best_ratio_outcome)
-  real_and_predicted = real_and_predicted[order(real_and_predicted$Date),]
+  real_and_predicted = real_and_predicted[order(real_and_predicted$MatchDate),]
   
   # Inserting timestamp on when the prediction was made
   real_and_predicted$timestamp = Sys.time()
   
   # Wright prediction in csv file with mw and dat of first game as title, should be written into an sql table soon
-  write.csv(real_and_predicted,paste("predictions_per_MW/prediction_MW",(nrow(dataf) %% 380)/10,"_",as.Date(head(real_and_predicted$Date,n=1)),".csv",sep = ""))
+  write.csv(real_and_predicted,paste("predictions_per_MW/prediction_MW",(nrow(dataf) %% (n_teams*(n_teams-1)))/(n_teams/2),"_",as.Date(head(real_and_predicted$MatchDate,n=1)),".csv",sep = ""))
 
   # Wright predictions in sqlite database table
   ENG_insert_predictions(real_and_predicted)
