@@ -45,16 +45,32 @@ ENG_exp_lineups_V2 <- function(){
     }
   }
   
+  # Check if date of match is "Today" and then use sys.date
+  check_if_today <- "Today"
+  
   # all the matches for which the expected line up is given on this page (always 10??)
   date_time_match <- as.numeric(gsub("[^\\d]+", "", exp_lineup_matchdate, perl=TRUE))
   day <- date_time_match
   year <- rep(format(Sys.Date(),"%Y"),length(exp_lineup_matchdate))
   
+  # go through date and check for "Today"
+  for (t in 1:length(exp_lineup_matchdate)){
+    if (exp_lineup_matchdate[t] == check_if_today){
+      day[t] <- as.numeric(format(as.Date(Sys.Date()),"%d"))
+      year[t] <- as.numeric(format(as.Date(Sys.Date()),"%Y"))
+    }
+  }
+  
+
   months_all=c("January","February","March","April","May","June","July","August","September","October","November","December")
   month <- vector(mode = "numeric", length = length(exp_lineup_matchdate))
   
   for (i in 1:length(exp_lineup_matchdate)){
-    month[i] <- as.numeric(which(sapply(months_all, function(x) grepl(x, exp_lineup_matchdate[i]))))
+    if (exp_lineup_matchdate[i] == check_if_today){
+      month[i] <- as.numeric(format(as.Date(Sys.Date()),"%m"))
+    }else{
+      month[i] <- as.numeric(which(sapply(months_all, function(x) grepl(x, exp_lineup_matchdate[i]))))
+    }
   }
   
   # putting the year, month and day together and put it in date format
