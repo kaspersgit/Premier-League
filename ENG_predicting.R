@@ -1,6 +1,6 @@
 setwd("D:/Het Project/Voetbal predictions/Premier-League")
 
-used.packages=c("xgboost","stringr","qlcMatrix","e1071","RSQLite","DBI")
+used.packages=c("xgboost","stringr","qlcMatrix","e1071","RSQLite","DBI","digest")
 not.installed=!(used.packages %in% rownames(installed.packages()))
 if(length(used.packages[not.installed])>0){
   install.packages(used.packages[not.installed])
@@ -15,12 +15,12 @@ library("qlcMatrix")
 library("RSQLite")
 library("DBI")
 
-if(!exists("foo", mode="function")) source("ENG_db_updating.R")
-if(!exists("foo", mode="function")) source("ENG_exp_lineups_V2.R")
+if(!exists("foo", mode="function")) source("external_connected_scripts/ENG_db_updating.R")
+if(!exists("foo", mode="function")) source("external_connected_scripts/ENG_exp_lineups_V2.R")
+if(!exists("foo", mode="function")) source("external_connected_scripts/ENG_db_connection.R")
+if(!exists("foo", mode="function")) source("external_connected_scripts/give_bf_odds.R")
+if(!exists("foo", mode="function")) source("external_connected_scripts/ENG_db_save_prediction.R")
 if(!exists("foo", mode="function")) source("ENG_cleaningandpreparing.R")
-if(!exists("foo", mode="function")) source("ENG_db_connection.R")
-if(!exists("foo", mode="function")) source("give_bf_odds.R")
-if(!exists("foo", mode="function")) source("ENG_db_save_prediction.R")
 
 # amount of teams per season in the highest league of the country
 n_teams = 20
