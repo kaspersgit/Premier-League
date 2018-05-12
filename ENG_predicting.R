@@ -26,6 +26,7 @@ if(!exists("foo", mode="function")) source("ENG_cleaningandpreparing.R")
 n_teams = 20
 
 # Based on if there is a match within a week according to BetFair then run script
+# Should look into using pinnacle API so bets can be made automatically
 if (nrow(give_bf_odds('ENG'))!=0){
   
   # Before starting the ENG_db_updating function we need to make sure the internet connection is good
