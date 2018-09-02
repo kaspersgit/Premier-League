@@ -44,7 +44,7 @@ ENG_db_updating <- function(n_teams){
   # Run as long as row count of database table is less than row count of available data
   if (last_game_in_db < last_game_available){
     
-    # Select the matches which are not in the database (based on the row count of the database table)
+    # Select the matches which are not in the database (based on the row count of the database table) from the csv file
     new_games_for_db <- cbind(((last_game_in_db+1):last_game_available),raw.data.18[((last_game_in_db+1):last_game_available),])
     
     #Insert the new rows into the db 69 columns of which the first one is just the row number
@@ -65,6 +65,7 @@ ENG_db_updating <- function(n_teams){
   
   ## Now for updating the lineup tables, through the ENG_R_lineup_input table
   # this check is based on the table which is updated above. Below we actually update another table, need to make a check if that table is updated
+  # fix this inequality so that if first table is updated this becomes an inequality and doens't stay equal as before the update of first table
   if (count_lineup_hist < count_matches_hist){
       
     # Create dataframe with one row and the correct colnames
@@ -87,7 +88,7 @@ ENG_db_updating <- function(n_teams){
       unique_matches_link=unique(all_matches_link)
       
       # matches which are not yet tracked (should maybe take extra matches in past and do a delete duplicates join to avoid different updates of the two source sites)
-      non_captured_matches <- unique_matches_link[((count_lineup_hist %% (n_teams*(n_teams-1)))+1):(last_game_available %% (n_teams*(n_teams-1)))]
+      non_captured_matches <- unique_matches_link[((count_lineup_hist %% (n_teams*(n_teams-1)))+1):(last_game_available)]
       
       # For every link of the matches not yet in the db scrape the lineups
       for (match_link in non_captured_matches){

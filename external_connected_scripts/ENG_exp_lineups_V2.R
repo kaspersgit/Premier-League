@@ -7,17 +7,18 @@ ENG_exp_lineups_V2 <- function(){
   exp_matches_lineups=setNames(data.frame(matrix(ncol = 25, nrow = 0)), c("match_date","hometeam","awayteam","h1","h2","h3","h4","h5","h6","h7","h8","h9","h10","h11","a1","a2","a3","a4","a5","a6","a7","a8","a9","a10","a11"))
   
   # Overview of the expected lineups in a league 
-  exp_url <- paste0("https://www.rotowire.com/soccer/soccer-lineups.htm")
+  exp_url <- paste0("https://www.rotowire.com/soccer/lineups.php")
   
   geturl <- getURL(exp_url)
   
   # get the html text behind it
   exp_rawpage <- htmlTreeParse(geturl, useInternalNodes = TRUE)
-  # look for the sentence where the distance is included
-  exp_lineup_tables <- xpathSApply(exp_rawpage, "//div[@class='span15 offset1']//div[@class='span15 dlineups-datestatus']",xmlValue)
+  
+  # the above two lines of code are redundant with this line below
+  exp_rawpage <- html_session(exp_url)
   
   # getting all the data for all the 10 next games
-  exp_lineup_matchdate <- xpathSApply(exp_rawpage, '//div[@class="span5 dlineups-bigtimeonly"]//span',xmlValue)
+  exp_lineup_matchdate <- html_nodes(WS1, ".lineup__time") %>% html_text() %>% as.character()
   exp_lineup_teams <- xpathSApply(exp_rawpage, '//div[@class="span15 dlineups-teamsnba"]',xmlValue)
   
   # Get the title of the names, because the name shown on the page is sometimes shortened for the first name
@@ -48,8 +49,16 @@ ENG_exp_lineups_V2 <- function(){
   # Check if date of match is "Today" and then use sys.date
   check_if_today <- "Today"
   
+  # simple function to extract n most right characters
+  substrRight <- function(x, n){
+    substr(x, nchar(x)-n+1, nchar(x))
+  }
+  
   # all the matches for which the expected line up is given on this page (always 10??)
-  date_time_match <- as.numeric(gsub("[^\\d]+", "", exp_lineup_matchdate, perl=TRUE))
+  ## TODO fix the regexp to get the date correct
+  date_time_match <- as.numeric(gsub("[([^\\d]+)", "", exp_lineup_matchdate, perl=TRUE))
+  date_time_match <- as.numeric(gsub("([0-9]+)", "", exp_lineup_matchdate, perl=TRUE))
+  
   day <- date_time_match
   year <- rep(format(Sys.Date(),"%Y"),length(exp_lineup_matchdate))
   
