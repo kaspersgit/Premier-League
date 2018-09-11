@@ -49,15 +49,12 @@ ENG_exp_lineups_V2 <- function(){
   # Check if date of match is "Today" and then use sys.date
   check_if_today <- "Today"
   
-  # simple function to extract n most right characters
-  substrRight <- function(x, n){
-    substr(x, nchar(x)-n+1, nchar(x))
-  }
-  
   # all the matches for which the expected line up is given on this page (always 10??)
   ## TODO fix the regexp to get the date correct
-  date_time_match <- as.numeric(gsub("[([^\\d]+)", "", exp_lineup_matchdate, perl=TRUE))
-  date_time_match <- as.numeric(gsub("([0-9]+)", "", exp_lineup_matchdate, perl=TRUE))
+  date_time_match <- vector(length = length(exp_lineup_matchdate), mode = 'numeric')
+  for (i in 1:length(exp_lineup_matchdate)){
+    date_time_match[i] <- as.numeric(gsub("[^\\d]", "",strsplit(exp_lineup_matchdate,' ')[[i]][2], perl = TRUE))
+  }
   
   day <- date_time_match
   year <- rep(format(Sys.Date(),"%Y"),length(exp_lineup_matchdate))

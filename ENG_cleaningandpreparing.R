@@ -25,12 +25,13 @@ ENG_preparation <- function(n_teams,include_odds){
   raw.data.16 = all_data[which(all_data$season== 20152016),]
   raw.data.17 = all_data[which(all_data$season== 20162017),]
   raw.data.18 = all_data[which(all_data$season== 20172018),]
+  raw.data.19 = all_data[which(all_data$season== 20182019),]
   
   # get the latest available data
   n.games=nrow(raw.data.18)
   n.teams=n_teams
   
-  # using the expected details and lineups saved in ENG_exp_lineups 
+  # using the expected details and lineups saved in ENG_exp_lineups, this should be rbinded to a new season
   next.matches=exp_data
   
   # If lineup was not found team mv will be 11000 by settings, then take last team mv
@@ -58,7 +59,7 @@ ENG_preparation <- function(n_teams,include_odds){
   fixtures$HTR=rep("D",nrow(fixtures))
   fixtures$Referee=rep("D",nrow(fixtures))
   
-  raw.data.18=rbind(raw.data.18,fixtures)
+  raw.data.19=rbind(raw.data.19,fixtures)
   
   
   delete.spaces=function(rawdata){

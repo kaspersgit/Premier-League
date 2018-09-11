@@ -18,37 +18,28 @@ ENG_db_updating <- function(n_teams){
   last_game_in_db <- as.numeric(dbGetQuery(con,'SELECT 
                             COUNT(*)
                             FROM 
-                              "2017"'))
+                              "20182019"'))
   
-  count_matches_hist <- as.numeric(dbGetQuery(con,'SELECT 
-                                                COUNT(*)
-                                                FROM 
-                                                ENG_matches_hist'))
-  
-  count_lineup_hist <- as.numeric(dbGetQuery(con,'SELECT 
-                                                COUNT(*)
-                                                FROM 
-                                                ENG_match_lineup'))
   
   # Import match detail data from internet (updated csv file)
-  raw.data.18 = read.csv("http://www.football-data.co.uk/mmz4281/1718/E0.csv")
-  raw.data.18$Date = as.Date(raw.data.18$Date,"%d/%m/%y")
-  raw.data.18 = raw.data.18[order(raw.data.18$Date,raw.data.18$HomeTeam),]
+  raw.data.current = read.csv("http://www.football-data.co.uk/mmz4281/1819/E0.csv")
+  raw.data.current$Date = as.Date(raw.data.current$Date,"%d/%m/%y")
+  raw.data.current = raw.data.current[order(raw.data.current$Date,raw.data.current$HomeTeam),]
   
   #to make it import as text instead of changing it to a number into sqlite
-  raw.data.18$Date <- as.character(raw.data.18$Date)
+  raw.data.current$Date <- as.character(raw.data.current$Date)
   
   #check what the last match was of which the data is available
-  last_game_available <- nrow(raw.data.18)
+  last_game_available <- nrow(raw.data.current)
   
   # Run as long as row count of database table is less than row count of available data
   if (last_game_in_db < last_game_available){
     
     # Select the matches which are not in the database (based on the row count of the database table) from the csv file
-    new_games_for_db <- cbind(((last_game_in_db+1):last_game_available),raw.data.18[((last_game_in_db+1):last_game_available),])
+    new_games_for_db <- cbind(((last_game_in_db+1):last_game_available),raw.data.current[((last_game_in_db+1):last_game_available),])
     
     #Insert the new rows into the db 69 columns of which the first one is just the row number
-    add_matches=dbSendQuery(con, 'INSERT INTO "2017"  
+    add_matches=dbSendQuery(con, 'INSERT INTO "20182019"  
                                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )')
     for (i in 1:nrow(new_games_for_db)){
       dbBind(add_matches, unname(new_games_for_db[i,]))
@@ -57,6 +48,17 @@ ENG_db_updating <- function(n_teams){
     # Clear result of the query
     dbClearResult(add_matches)
   }
+  
+  # Count rows in two tables to see if one lags behind
+  count_matches_hist <- as.numeric(dbGetQuery(con,'SELECT 
+                                                COUNT(*)
+                                              FROM 
+                                              ENG_matches_hist'))
+  
+  count_lineup_hist <- as.numeric(dbGetQuery(con,'SELECT 
+                                             COUNT(*)
+                                             FROM 
+                                             ENG_match_lineup'))
   
   # close connection 
   dbDisconnect(con)
@@ -67,13 +69,18 @@ ENG_db_updating <- function(n_teams){
   # this check is based on the table which is updated above. Below we actually update another table, need to make a check if that table is updated
   # fix this inequality so that if first table is updated this becomes an inequality and doens't stay equal as before the update of first table
   if (count_lineup_hist < count_matches_hist){
+    
+    # for in case we have to change the team names to make them in line with db names
+    url.names=c("Arsenal","Aston Villa","Birmingham","Blackburn","Blackpool","Bolton","AFC Bournemouth","Bradford City","Brighton and Hove Albion","Burnley","Cardiff City","Charlton","Chelsea","Coventry City","Crystal Palace","Derby","Everton","Fulham","Huddersfield Town","Hull City","Ipswich","Leeds","Leicester City","Liverpool","Manchester City","Manchester United","Middlesbrough","Newcastle United","Norwich","Portsmouth FC","QPR","Reading","Sheffield Utd.","Southampton","Stoke City","Sunderland","Swansea City","Tottenham Hotspur","Watford","West Bromwich Albion","West Ham United","Wigan","Wolverhampton Wanderers","Wimbledon")
+    team.names=c("Arsenal","Aston Villa","Birmingham","Blackburn","Blackpool","Bolton","Bournemouth","Bradford","Brighton","Burnley","Cardiff","Charlton","Chelsea","Coventry","Crystal Palace","Derby","Everton","Fulham","Huddersfield","Hull","Ipswich","Leeds","Leicester","Liverpool","Man City","Man United","Middlesbrough","Newcastle","Norwich","Portsmouth","QPR","Reading","Sheffield United","Southampton","Stoke","Sunderland","Swansea","Tottenham","Watford","West Brom","West Ham","Wigan","Wolves","Wimbledon")
+    
       
     # Create dataframe with one row and the correct colnames
     match_lineups=data.frame(matrix(rep(0,26),nrow=1))
     colnames(match_lineups)=c("match_date","hometeam","awayteam","h1","h2","h3","h4","h5","h6","h7","h8","h9","h10","h11","a1","a2","a3","a4","a5","a6","a7","a8","a9","a10","a11","season")
     
     # This doesn't need to be a loop as we only do it for current season, will need some fix to make it more adaptable for next season
-    for (start_year in 2018){
+    for (start_year in 2019){
       
       # Url of all the season games
       weblink <- paste("https://www.11v11.com/competitions/premier-league/",start_year,"/matches/",sep = "")
@@ -154,7 +161,7 @@ ENG_db_updating <- function(n_teams){
   
   # Updating the next expected match lineups
   # First getting the expected line ups for the coming 10 games (need to make back up when not available or something else wrong)
-  exp_lineups <- ENG_exp_lineups_V2()
+  exp_lineups <- ENG_exp_lineups()
   exp_lineups$season <- ifelse(strftime(exp_lineups$match_date, format = "%V")>26,paste0(as.numeric(strftime(exp_lineups$match_date, format = "%Y")),as.numeric(strftime(exp_lineups$match_date, format = "%Y"))+1),paste0(as.numeric(strftime(exp_lineups$match_date, format = "%Y"))-1,as.numeric(strftime(exp_lineups$match_date, format = "%Y"))))
   names(exp_lineups) <- NULL
   

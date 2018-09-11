@@ -17,6 +17,7 @@ library("DBI")
 
 if(!exists("foo", mode="function")) source("external_connected_scripts/ENG_db_updating.R")
 if(!exists("foo", mode="function")) source("external_connected_scripts/ENG_exp_lineups_V2.R")
+if(!exists("foo", mode="function")) source("external_connected_scripts/ENG_exp_lineups.R")
 if(!exists("foo", mode="function")) source("external_connected_scripts/ENG_db_connection.R")
 if(!exists("foo", mode="function")) source("external_connected_scripts/give_bf_odds.R")
 if(!exists("foo", mode="function")) source("external_connected_scripts/ENG_db_save_prediction.R")
