@@ -25,7 +25,7 @@ ENG_exp_lineups <- function(){
   playing_teams <- matrix(vector(mode="character", length = 2*length(splitted_teams)),ncol = 2)
   for (i in 1:length(splitted_teams)){
     # Matches already played will look like t/tArsenal - Tottenham 2-0/t/t/ splitting on the dash will give more than 2 pieces
-    if (length(splitted_teams[[i]])==3){
+    if (length(splitted_teams[[i]])>1){
       for (n in 1:2){
         playing_teams[i,n]=team.names[sapply(url.names, grepl, splitted_teams[[i]][n])]
       }

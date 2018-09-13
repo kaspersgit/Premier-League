@@ -28,7 +28,7 @@ ENG_preparation <- function(n_teams,include_odds){
   raw.data.19 = all_data[which(all_data$season== 20182019),]
   
   # get the latest available data
-  n.games=nrow(raw.data.18)
+  n.games=nrow(raw.data.19)
   n.teams=n_teams
   
   # using the expected details and lineups saved in ENG_exp_lineups, this should be rbinded to a new season
@@ -44,8 +44,8 @@ ENG_preparation <- function(n_teams,include_odds){
     }  
   }
   
-  fixtures=as.data.frame(matrix(rep(0,ncol(raw.data.18)*nrow(exp_data)),nrow=nrow(exp_data)))
-  names(fixtures)=names(raw.data.18)
+  fixtures=as.data.frame(matrix(rep(0,ncol(raw.data.19)*nrow(exp_data)),nrow=nrow(exp_data)))
+  names(fixtures)=names(raw.data.19)
   #fixturesv <- merge(next.matches,fixtures, by.x = intersect(names(fixtures), names(next.matches)))
   fixtures[,intersect(names(fixtures), names(next.matches))] <- next.matches[,intersect(names(fixtures), names(next.matches))]
   
@@ -86,6 +86,7 @@ ENG_preparation <- function(n_teams,include_odds){
   raw.data.16=delete.spaces(raw.data.16)
   raw.data.17=delete.spaces(raw.data.17)
   raw.data.18=delete.spaces(raw.data.18)
+  raw.data.19=delete.spaces(raw.data.19)
   
   
   if (include_odds){
@@ -115,6 +116,7 @@ ENG_preparation <- function(n_teams,include_odds){
   playing_statistics_16 = raw.data.16[!is.na(raw.data.16$Date),columns_req]
   playing_statistics_17 = raw.data.17[!is.na(raw.data.17$Date),columns_req]
   playing_statistics_18 = raw.data.18[!is.na(raw.data.18$Date),columns_req]
+  playing_statistics_19 = raw.data.19[!is.na(raw.data.19$Date),columns_req]
   
   # Gets the goals scored agg arranged by teams and matchweek
   get_goals_scored=function(playing_stat){
@@ -228,6 +230,7 @@ ENG_preparation <- function(n_teams,include_odds){
   playing_statistics_16 = get_gss(playing_statistics_16)
   playing_statistics_17 = get_gss(playing_statistics_17)
   playing_statistics_18 = get_gss(playing_statistics_18)
+  playing_statistics_19 = get_gss(playing_statistics_19)
   
   
   # Gets the shots agg arranged by teams and matchweek
@@ -342,6 +345,7 @@ ENG_preparation <- function(n_teams,include_odds){
   playing_statistics_16 = get_sst(playing_statistics_16)
   playing_statistics_17 = get_sst(playing_statistics_17)
   playing_statistics_18 = get_sst(playing_statistics_18)
+  playing_statistics_19 = get_sst(playing_statistics_19)
   
   # get respective points
   get_points_gained=function(playing_stat){
@@ -436,6 +440,7 @@ ENG_preparation <- function(n_teams,include_odds){
   playing_statistics_16 = get_agg_points(playing_statistics_16)
   playing_statistics_17 = get_agg_points(playing_statistics_17)
   playing_statistics_18 = get_agg_points(playing_statistics_18)
+  playing_statistics_19 = get_agg_points(playing_statistics_19)
   
   if (include_odds){
     ## to include the odds of InterWetten
@@ -468,6 +473,7 @@ ENG_preparation <- function(n_teams,include_odds){
   playing_statistics_16 = playing_statistics_16[cols]
   playing_statistics_17 = playing_statistics_17[cols]
   playing_statistics_18 = playing_statistics_18[cols]
+  playing_statistics_19 = playing_statistics_19[cols]
   
   #Get Last Year's Position as also an independent variable:
   Standings = read.csv("yearly_updated_data/EPLStandings.csv", sep = ";")
@@ -508,9 +514,10 @@ ENG_preparation <- function(n_teams,include_odds){
   playing_statistics_16 = get_last(playing_statistics_16, Standings, "X2015")
   playing_statistics_17 = get_last(playing_statistics_17, Standings, "X2016")
   playing_statistics_18 = get_last(playing_statistics_18, Standings, "X2017")
+  playing_statistics_19 = get_last(playing_statistics_19, Standings, "X2018")
   
   #Get average age as also an independent variable:
-  AvgAge = read.csv("yearly_updated_data/AvgAge.csv", sep = ",")
+  AvgAge = read.csv("yearly_updated_data/AvgAge.csv", sep = ";")
   AvgAge[,1]=str_replace_all(AvgAge[,1], fixed(" "), "")
   rownames(AvgAge)=AvgAge[,1]
   AvgAge=AvgAge[,-1]
@@ -547,6 +554,7 @@ ENG_preparation <- function(n_teams,include_odds){
   playing_statistics_16 = get_AvgAge(playing_statistics_16, AvgAge, "X2015")
   playing_statistics_17 = get_AvgAge(playing_statistics_17, AvgAge, "X2016")
   playing_statistics_18 = get_AvgAge(playing_statistics_18, AvgAge, "X2017")
+  playing_statistics_19 = get_AvgAge(playing_statistics_19, AvgAge, "X2018")
   
   #Get average Market Value as also an independent variable:
   AvgMV = read.csv("yearly_updated_data/AvgMV.csv", sep = ";")
@@ -587,6 +595,7 @@ ENG_preparation <- function(n_teams,include_odds){
   playing_statistics_16 = get_AvgMV(playing_statistics_16, AvgMV, "X2015")
   playing_statistics_17 = get_AvgMV(playing_statistics_17, AvgMV, "X2016")
   playing_statistics_18 = get_AvgMV(playing_statistics_18, AvgMV, "X2017")
+  playing_statistics_19 = get_AvgMV(playing_statistics_19, AvgMV, "X2018")
   
   #Get MatchWeek
   get_mw=function(playing_stat){
@@ -620,6 +629,7 @@ ENG_preparation <- function(n_teams,include_odds){
   playing_statistics_16 = get_mw(playing_statistics_16)
   playing_statistics_17 = get_mw(playing_statistics_17)
   playing_statistics_18 = get_mw(playing_statistics_18)
+  playing_statistics_19 = get_mw(playing_statistics_19)
   
   # Combining to one dataset, start up mv only available from nr. 7
   playing_stat = rbind(playing_statistics_7,
@@ -633,7 +643,8 @@ ENG_preparation <- function(n_teams,include_odds){
                        playing_statistics_15,
                        playing_statistics_16,
                        playing_statistics_17,
-                       playing_statistics_18)
+                       playing_statistics_18,
+                       playing_statistics_19)
   
   # Form defined as result of the last 5 games
   get_form=function(playing_stat,num){
