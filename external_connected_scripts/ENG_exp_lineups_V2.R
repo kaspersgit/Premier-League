@@ -9,41 +9,48 @@ ENG_exp_lineups_V2 <- function(){
   # Overview of the expected lineups in a league 
   exp_url <- paste0("https://www.rotowire.com/soccer/lineups.php")
   
-  geturl <- getURL(exp_url)
-  
-  # get the html text behind it
-  exp_rawpage <- htmlTreeParse(geturl, useInternalNodes = TRUE)
-  
-  # the above two lines of code are redundant with this line below
+  # Don't exactly know how this part works but it enables for easier extraction afterwards
   exp_rawpage <- html_session(exp_url)
   
   # getting all the data for all the 10 next games
-  exp_lineup_matchdate <- html_nodes(WS1, ".lineup__time") %>% html_text() %>% as.character()
-  exp_lineup_teams <- xpathSApply(exp_rawpage, '//div[@class="span15 dlineups-teamsnba"]',xmlValue)
+  exp_lineup_matchdate <- html_nodes(exp_rawpage, ".lineup__time") %>% html_text() %>% as.character()
+  exp_lineup_teams <- html_nodes(exp_rawpage, ".lineup__mteam") %>% html_text() %>% as.character()
+  exp_lineup_teams <- trimws(exp_lineup_teams)
   
-  # Get the title of the names, because the name shown on the page is sometimes shortened for the first name
-  exp_lineup_home <- xpathSApply(exp_rawpage, '//div[@class="home_lineup"]//div[@class="dlineups-vplayer"]//a', xmlGetAttr, "title")
-  exp_lineup_away <- xpathSApply(exp_rawpage, '//div[@class="visit_lineup"]//div[@class="dlineups-vplayer"]//a',xmlGetAttr, "title")
+  # extract links to players as they are abbreviated on the original page
+  exp_lineup_home_links <- html_nodes(exp_rawpage, ".is-home a") %>% html_attr("href")
+  
+  # Create empty dataframe and fill it up with players names taken from their personal page
+  exp_lineup_home <- NULL
+  for (p in 1:length(exp_lineup_home_links)){
+    exp_lineup_home_player <- html_nodes(html_session(paste0("https://www.rotowire.com",exp_lineup_home_links[p])), ".mb-0.hide-until-md") %>% html_text() %>% as.character() 
+    exp_lineup_home <- rbind(exp_lineup_home,exp_lineup_home_player)
+    }
+  
+  
+  exp_lineup_away_links <- html_nodes(exp_rawpage, ".is-visit a") %>% html_attr("href")
+  
+  exp_lineup_away <- NULL
+  for (p in 1:length(exp_lineup_away_links)){
+    exp_lineup_away_player <- html_nodes(html_session(paste0("https://www.rotowire.com",exp_lineup_away_links[p])), ".mb-0.hide-until-md") %>% html_text() %>% as.character() 
+    exp_lineup_away <- rbind(exp_lineup_away,exp_lineup_away_player)
+  }
   
   # line up split per game 
   line_ups_home <- matrix(exp_lineup_home, ncol = 11, byrow = TRUE)
   line_ups_away <- matrix(exp_lineup_away, ncol = 11, byrow = TRUE)
   
   # team names are in string e.g. "/t/tArsenal - Tottenham/t/t/" so we have to split up on the dash and look at both pieces seperately
-  url.names=c("Arsenal","Aston Villa","Birmingham","Blackburn","Blackpool","Bolton","Bournemouth","Bradford City","Brighton","Burnley","Cardiff","Charlton","Chelsea","Coventry City","Crystal Palace","Derby","Everton","Fulham","Huddersfield","Hull City","Ipswich","Leeds","Leicester","Liverpool","Manchester City","Manchester United","Middlesbrough","Newcastle","Norwich","Portsmouth FC","QPR","Reading","Sheffield Utd.","Southampton","Stoke","Sunderland","Swansea","Tottenham","Watford","West Brom","West Ham","Wigan","Wolves","Wimbledon")
+  url.names=c("Arsenal","Aston Villa","Birmingham","Blackburn","Blackpool","Bolton","Bournemouth","Bradford City","Brighton","Burnley","Cardiff","Charlton","Chelsea","Coventry City","Crystal Palace","Derby","Everton","Fulham","Huddersfield","Hull City","Ipswich","Leeds","Leicester","Liverpool","Manchester City","Manchester United","Middlesbrough","Newcastle","Norwich","Portsmouth FC","QPR","Reading","Sheffield Utd.","Southampton","Stoke","Sunderland","Swansea","Tottenham","Watford","West Brom","West Ham","Wigan","Wolverhampton","Wimbledon")
   team.names=c("Arsenal","Aston Villa","Birmingham","Blackburn","Blackpool","Bolton","Bournemouth","Bradford","Brighton","Burnley","Cardiff","Charlton","Chelsea","Coventry","Crystal Palace","Derby","Everton","Fulham","Huddersfield","Hull","Ipswich","Leeds","Leicester","Liverpool","Man City","Man United","Middlesbrough","Newcastle","Norwich","Portsmouth","QPR","Reading","Sheffield United","Southampton","Stoke","Sunderland","Swansea","Tottenham","Watford","West Brom","West Ham","Wigan","Wolves","Wimbledon")
   
   
-  splitted_teams <- strsplit(exp_lineup_teams,"vs.")
-  playing_teams <- matrix(vector(mode="character", length = 2*length(splitted_teams)),ncol = 2)
+  playing_teams <- matrix(vector(mode="character", length = length(exp_lineup_teams)),ncol = 2)
   
-  for (i in 1:length(splitted_teams)){
-    # Matches already played will look like t/tArsenal - Tottenham 2-0/t/t/ splitting on the dash will give more than 2 pieces
-    if (length(splitted_teams[[i]])==2){
-      for (n in 1:2){
-        playing_teams[i,n]=team.names[sapply(url.names, grepl, splitted_teams[[i]][n])]
-      }
-    }
+  for (i in 1:length(exp_lineup_teams)){
+    h = ((i+1) %% 2)+1
+    v = ceiling(i/2)
+    playing_teams[v,h]=team.names[sapply(url.names, grepl, exp_lineup_teams[i])]
   }
   
   # Check if date of match is "Today" and then use sys.date

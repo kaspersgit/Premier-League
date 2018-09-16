@@ -161,7 +161,7 @@ ENG_db_updating <- function(n_teams){
   
   # Updating the next expected match lineups
   # First getting the expected line ups for the coming 10 games (need to make back up when not available or something else wrong)
-  exp_lineups <- ENG_exp_lineups()
+  exp_lineups <- ENG_exp_lineups_V2()
   exp_lineups$season <- ifelse(strftime(exp_lineups$match_date, format = "%V")>26,paste0(as.numeric(strftime(exp_lineups$match_date, format = "%Y")),as.numeric(strftime(exp_lineups$match_date, format = "%Y"))+1),paste0(as.numeric(strftime(exp_lineups$match_date, format = "%Y"))-1,as.numeric(strftime(exp_lineups$match_date, format = "%Y"))))
   names(exp_lineups) <- NULL
   
