@@ -27,7 +27,6 @@ ENG_exp_lineups_V2 <- function(){
     exp_lineup_home <- rbind(exp_lineup_home,exp_lineup_home_player)
     }
   
-  
   exp_lineup_away_links <- html_nodes(exp_rawpage, ".is-visit a") %>% html_attr("href")
   
   exp_lineup_away <- NULL
@@ -35,6 +34,13 @@ ENG_exp_lineups_V2 <- function(){
     exp_lineup_away_player <- html_nodes(html_session(paste0("https://www.rotowire.com",exp_lineup_away_links[p])), ".mb-0.hide-until-md") %>% html_text() %>% as.character() 
     exp_lineup_away <- rbind(exp_lineup_away,exp_lineup_away_player)
   }
+  
+  # Cleaning names
+  Encoding(exp_lineup_home) <- "UTF-8"
+  exp_lineup_home <- iconv(trimws(gsub("ð","d",exp_lineup_home)), from = "UTF-8", to="ASCII//TRANSLIT")
+  
+  Encoding(exp_lineup_away) <- "UTF-8"
+  exp_lineup_away <- iconv(trimws(gsub("ð","d",exp_lineup_away)), from = "UTF-8", to="ASCII//TRANSLIT")
   
   # line up split per game 
   line_ups_home <- matrix(exp_lineup_home, ncol = 11, byrow = TRUE)

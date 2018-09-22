@@ -1,4 +1,6 @@
---  220 * 22 = 4840 players
+--  select 380 * 22 = 8360 players --> 804 are unmatched
+-- removing accents gives: 587 are unmatched
+-- putting names in lower case: 446 are unmatched
 WITH step_1 AS (
 SELECT 
 	sum(case when hmv1 = 1000 then 1 else 0 end) as h1
@@ -26,7 +28,7 @@ SELECT
 FROM 
 	ENG_match_mv
 WHERE 
-	season = 20172018
+	season = 2016017
 )
 
 SELECT

@@ -117,6 +117,14 @@ ENG_db_updating <- function(n_teams){
         home_starting11 <- home_team[2:12]
         away_starting11 <- away_team[2:12]
         
+        # Cleaning names
+        Encoding(home_starting11) <- "UTF-8"
+        home_starting11 <- iconv(trimws(gsub("ð","d",home_starting11)), from = "UTF-8", to="ASCII//TRANSLIT")
+        
+        Encoding(away_starting11) <- "UTF-8"
+        away_starting11 <- iconv(trimws(gsub("ð","d",away_starting11)), from = "UTF-8", to="ASCII//TRANSLIT")
+        
+        
         # Getting the date of the match
         raw_match_details <- page %>% html_nodes(xpath='//div[@class="match-report"]//h1') %>% html_text()
         raw_match_date <- sub("^.*\\,", "", raw_match_details)
