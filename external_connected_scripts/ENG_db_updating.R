@@ -14,7 +14,7 @@ ENG_db_updating <- function(n_teams){
   # connect to the sqlite db
   con = dbConnect(RSQLite::SQLite(), dbname="historic_data/football.db")
   
-  # Check how many games of season 2017-2018 are already in the db (table 2017)
+  # Check how many games of season 2018-2019 are already in the db 
   last_game_in_db <- as.numeric(dbGetQuery(con,'SELECT 
                             COUNT(*)
                             FROM 
