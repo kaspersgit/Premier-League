@@ -1,0 +1,11 @@
+"","MatchDate","HomeTeam","AwayTeam","PredictedOutcome","Homeodd","Drawodd","Awayodd","BF_H_odds","BF_D_odds","BF_A_odds","best_ratio","best_ratio_outcome","timestamp"
+"1","2018-09-15T14:00:00.000Z","Bournemouth","Leicester","Bournemouth",2.64239730720548,3.42104830116664,3.03722686672001,2.54,3.5,3.1,1.02307821810246,"D",2018-09-15 12:59:11
+"2","2018-09-15T14:00:00.000Z","Chelsea","Cardiff","Chelsea",1.1957806314969,10.6394350017178,14.3397505747162,1.17,9.2,25,1.74340549856424,"A",2018-09-15 12:59:11
+"5","2018-09-15T14:00:00.000Z","Huddersfield","CrystalPalace",NA,NA,NA,NA,3.5,3.2,2.44,NA,NA,2018-09-15 12:59:11
+"6","2018-09-15T14:00:00.000Z","ManCity","Fulham",NA,NA,NA,NA,1.11,13,38,NA,NA,2018-09-15 12:59:11
+"7","2018-09-15T14:00:00.000Z","Newcastle","Arsenal",NA,NA,NA,NA,4.4,3.95,1.9,NA,NA,2018-09-15 12:59:11
+"9","2018-09-15T16:30:00.000Z","Watford","ManUnited",NA,NA,NA,NA,4.5,3.65,1.97,NA,NA,2018-09-15 12:59:11
+"10","2018-09-16T12:30:00.000Z","Wolves","Burnley",NA,NA,NA,NA,1.77,3.7,6,NA,NA,2018-09-15 12:59:11
+"3","2018-09-16T15:00:00.000Z","Everton","WestHam",NA,NA,NA,NA,2.06,3.75,3.95,NA,NA,2018-09-15 12:59:11
+"8","2018-09-17T19:00:00.000Z","Southampton","Brighton",NA,NA,NA,NA,2.14,3.35,4.1,NA,NA,2018-09-15 12:59:11
+"4","2018-09-22T11:30:00.000Z","Fulham","Watford",NA,NA,NA,NA,2.4,3.6,2.9,NA,NA,2018-09-15 12:59:11

@@ -28,7 +28,7 @@ y_all = dataf['FTR']
 
 #Standardising the data
 #Center to the mean and component wise scale to unit variance.
-cols = c('HTGD','ATGD','HTP','ATP','DiffLP','Distance','AwayAvgAge','HomeAvgAge','HomeAvgMV','AwayAvgMV','HTS','ATS','HTST','ATST','HM3','AM3','HM5','AM5','HM10','AM10','HMH1','AMA1')
+cols = c('HTGD','ATGD','HTP','ATP','DiffLP','Distance','AwayAvgAge','HomeAvgAge','HomeAvgMV','AwayAvgMV','HTS','ATS','HTST','ATST','HM3','AM3','HM5','AM5','HM10','AM10','HMH1','AMA1','home_start_mv','away_start_mv')
 x_all[cols] = scale(x_all[cols])
 
 x_all$matchnr.=c(1:nrow(x_all))
@@ -37,7 +37,8 @@ x_all$matchnr.=c(1:nrow(x_all))
 x_featured=x_all[,c('HTP', 'ATP','HTGD', 'ATGD',
                 "DiffPts","DiffLP",'HM3','AM3','HM5','AM5','HM10','AM10','HMH1','AMA1', 
                 'Distance','AwayAvgAge','HomeAvgAge','HomeAvgMV','AwayAvgMV',
-                'HTS','ATS','HTST','ATST','IWH','IWD','IWA','matchnr.','MW')]
+                'HTS','ATS','HTST','ATST','home_start_mv','away_start_mv',
+                'IWH','IWD','IWA','matchnr.','MW')]
 
 # to avoid having unequal amount of rows
 #x_featured=x_featured[!is.na(x_featured$IWA),]
@@ -73,8 +74,8 @@ test_label <- data_label[-train_index]
 test_matrix <- xgb.DMatrix(data = test_data, label = test_label)
 
 numberOfClasses <- length(unique(dat$FTRC))
-xgb_params <- list("max_depth"=3,"eta"=0.2,
-                   "colsample_bytree"=0.9,
+xgb_params <- list("max_depth"=2,"eta"=0.05,
+                   "colsample_bytree"=0.8,
                    "objective" = "multi:softprob",
                    "eval_metric" = "mlogloss",
                    "min_child_weight"=7,
@@ -82,7 +83,7 @@ xgb_params <- list("max_depth"=3,"eta"=0.2,
                    "alpha"=0,
                    "lambda"=1,
                    "num_class" = numberOfClasses)
-nround    <- 25 # number of XGBoost rounds
+nround    <- 80 # number of XGBoost rounds
 cv.nfold  <- 10
 set.seed(999)
 # Fit cv.nfold * cv.nround XGB models and save OOF predictions
@@ -164,7 +165,7 @@ calc_prof <- function(minprofmarg,maxprofmarg,minprob,maxprob,bet_on_outcomes,wa
 }
 
 # calculating the profit given the minimal profit margin, lower probability, higher probability and the wager amount
-calc_prof(minprofmarg=1.1,maxprofmarg=1.8,minprob=0.33,maxprob=0.99,c(1),wager=1,n.periods=15) 
+calc_prof(minprofmarg=1.04,maxprofmarg=2,minprob=0.3,maxprob=0.7,c(1),wager=1,n.periods=15) 
 
 ### checking if between two prbabilities the fraction of correct predictions is the same
 check_prob <- function(LB,UB){

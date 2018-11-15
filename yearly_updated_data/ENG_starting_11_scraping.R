@@ -6,6 +6,7 @@ library(RCurl)
 match_lineups=matrix(rep(0,25),nrow=1)
 colnames(match_lineups)=c("match_date","hometeam","awayteam","h1","h2","h3","h4","h5","h6","h7","h8","h9","h10","h11","a1","a2","a3","a4","a5","a6","a7","a8","a9","a10","a11")
 
+# to scrape all previous seasons, only make sense to run once. Updating it on a weekly basis should at max only the last season be used
 for (start_year in 2001:2018){
 
     # Url of all the season games
@@ -35,6 +36,13 @@ for (start_year in 2001:2018){
     
     home_starting11 <- home_team[2:12]
     away_starting11 <- away_team[2:12]
+    
+    # Cleaning names
+    Encoding(home_starting11) <- "UTF-8"
+    home_starting11 <- iconv(trimws(gsub("ð","d",home_starting11)), from = "UTF-8", to="ASCII//TRANSLIT")
+    
+    Encoding(away_starting11) <- "UTF-8"
+    away_starting11 <- iconv(trimws(gsub("ð","d",away_starting11)), from = "UTF-8", to="ASCII//TRANSLIT")
     
     # Getting the date of the match
     raw_match_details <- page %>% html_nodes(xpath='//div[@class="match-report"]//h1') %>% html_text()

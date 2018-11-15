@@ -2,7 +2,7 @@ library(XML)
 library(rvest)
 
 # let it run for every season 
-for (s in 1:17){
+for (s in 1:18){
   season_start <- 2000+s
   # Overview of the teams in te league in certain year, used for the links to team pages
   league_url <- paste0("https://www.transfermarkt.com/premier-league/startseite/wettbewerb/GB1/plus/?saison_id=",season_start)
@@ -24,7 +24,7 @@ for (s in 1:17){
     html_url <- read_html(url)
     
     # extract club name
-    team_name <- html_url %>% html_nodes(".dataName b") %>% html_text() %>% as.character()
+    team_name <- html_url %>% html_nodes(".dataName span") %>% html_text() %>% as.character()
     
     # extract the player names and current market value
     players_values <- html_url %>% html_nodes("#yw1 .hauptlink") %>% html_text() %>% as.character()
@@ -53,7 +53,8 @@ player_values_raw = rbind(players_value_2006,
                      players_value_2014,
                      players_value_2015,
                      players_value_2016,
-                     players_value_2017)
+                     players_value_2017,
+                     players_value_2018)
 
 
 # editing the names and values to be usefull
@@ -88,6 +89,7 @@ get_mv <- function(long_value){
   return(mv)
 }
 
+player_values_raw[,2]=as.character(player_values_raw[,2])
 player_values_raw[,3]=get_name(player_values_raw[,3])
 player_values_raw[,4]=get_mv(player_values_raw[,4])
 
@@ -98,6 +100,6 @@ for (n in 1:nrow(player_values_raw)){
   player_values_raw$team[n]=team.names[which(player_values_raw$team[n]==urlteams)]
 }
 
-write.csv(player_values_raw,"player_values_clean.csv")
+write.csv(player_values_raw,"player_values_clean_20182019_1.csv")
 
 
