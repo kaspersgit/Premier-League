@@ -1,6 +1,6 @@
 setwd("D:/Het Project/Voetbal predictions/Premier-League")
 
-used.packages=c("xgboost","stringr","qlcMatrix","e1071","RSQLite","DBI","digest")
+used.packages=c("xgboost","stringr","dplyr","caret","DiagrammeR","qlcMatrix","e1071","jsonlite","RSQLite","DBI","digest","rvest","abettor","XML","RCurl")
 not.installed=!(used.packages %in% rownames(installed.packages()))
 if(length(used.packages[not.installed])>0){
   install.packages(used.packages[not.installed])
@@ -147,4 +147,12 @@ if (nrow(give_bf_odds('ENG'))!=0){
 
   # Wright predictions in sqlite database table
   ENG_insert_predictions(real_and_predicted)
+  
+  if (!is.null(real_and_predicted$Drawodd[10])) {
+    print("SUCCESFUL PREDICTION")
   }
+}
+
+if (!is.null(real_and_predicted$Drawodd[10])) {
+  print("SUCCESFUL PREDICTION")
+}

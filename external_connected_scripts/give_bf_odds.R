@@ -8,7 +8,7 @@ give_bf_odds <- function(country){
   
   
   # install.packages("devtools")
-  # devtools::install_git("https://gitlab.com/phillc73/abettor.git")
+  #devtools::install_git("https://gitlab.com/phillc73/abettor.git")
   library("abettor")
   # Requires a minimum of version 1.95-4.3
   require("RCurl")

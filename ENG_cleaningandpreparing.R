@@ -517,7 +517,7 @@ ENG_preparation <- function(n_teams,include_odds){
   playing_statistics_19 = get_last(playing_statistics_19, Standings, "X2018")
   
   #Get average age as also an independent variable:
-  AvgAge = read.csv("yearly_updated_data/AvgAge.csv", sep = ";")
+  AvgAge = read.csv("yearly_updated_data/AvgAge.csv", sep = ",")
   AvgAge[,1]=str_replace_all(AvgAge[,1], fixed(" "), "")
   rownames(AvgAge)=AvgAge[,1]
   AvgAge=AvgAge[,-1]
@@ -557,7 +557,7 @@ ENG_preparation <- function(n_teams,include_odds){
   playing_statistics_19 = get_AvgAge(playing_statistics_19, AvgAge, "X2018")
   
   #Get average Market Value as also an independent variable:
-  AvgMV = read.csv("yearly_updated_data/AvgMV.csv", sep = ";")
+  AvgMV = read.csv("yearly_updated_data/AvgMV.csv", sep = ",")
   AvgMV[,1]=str_replace_all(AvgMV[,1], fixed(" "), "")
   rownames(AvgMV)=AvgMV[,1]
   AvgMV=AvgMV[,-1]

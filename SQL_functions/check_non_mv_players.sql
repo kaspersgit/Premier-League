@@ -32,6 +32,23 @@ WHERE
 )
 
 SELECT
-	h1+h2+h3+h4+h5+h6+h7+h8+h9+h10+h11+h1+a1+a2+a3+a4+a5+a6+a7+a8+a9+a10+a11
+	h1+h2+h3+h4+h5+h6+h7+h8+h9+h10+h11+a1+a2+a3+a4+a5+a6+a7+a8+a9+a10+a11
 FROM 
 	step_1
+;
+
+
+SELECT *
+FROM ENG_players_mv_cleaning
+WHERE team like '%wolves%'
+AND season = 20182019;
+
+SELECT *
+FROM ENG_match_lineup_cleaning
+WHERE hometeam like '%wolves%'
+AND season = 20182019;
+
+SELECT *
+FROM ENG_match_mv
+WHERE hometeam like '%wolves%'
+AND season = 20182019;

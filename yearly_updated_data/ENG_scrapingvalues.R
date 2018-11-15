@@ -2,10 +2,11 @@
 library(XML)
 library(RCurl)
 library(httr)
+library(stringr)
 library(rvest)
 
-years=as.character(2000+c(0:18))
-url.names=c("Arsenal","Aston Villa","Birmingham","Blackburn","Blackpool","Bolton","Bournemouth","Bradford City","Brighton","Burnley","Cardiff","Charlton","Chelsea","Coventry City","Crystal Palace","Derby","Everton","Fulham","Huddersfield","Hull City","Ipswich","Leeds","Leicester","Liverpool","Man City","Man Utd","Middlesbrough","Newcastle","Norwich","Portsmouth FC","QPR","Reading","Sheffield Utd.","Southampton","Stoke City","Sunderland","Swansea","Spurs","Watford","West Brom","West Ham","Wigan","Wolves","Wimbledon")
+years=as.character(2000+c(0:19))
+url.names=c("Arsenal","Aston Villa","Birmingham","Blackburn","Blackpool","Bolton","Bournemouth","Bradford","Brighton","Burnley","Cardiff","Charlton","Chelsea","Coventry","Crystal Palace","Derby","Everton","Fulham","Huddersfield","Hull City","Ipswich","Leeds","Leicester","Liverpool","Man City","Man Utd","Middlesbrough","Newcastle","Norwich","Portsmouth","QPR","Reading","Sheffield Utd.","Southampton","Stoke City","Sunderland","Swansea","Spurs","Watford","West Brom","West Ham","Wigan","Wolves","Wimbledon")
 team.names=c("Arsenal","Aston Villa","Birmingham","Blackburn","Blackpool","Bolton","Bournemouth","Bradford","Brighton","Burnley","Cardiff","Charlton","Chelsea","Coventry","Crystal Palace","Derby","Everton","Fulham","Huddersfield","Hull","Ipswich","Leeds","Leicester","Liverpool","Man City","Man United","Middlesbrough","Newcastle","Norwich","Portsmouth","QPR","Reading","Sheffield United","Southampton","Stoke","Sunderland","Swansea","Tottenham","Watford","West Brom","West Ham","Wigan","Wolves","Wimbledon")
 AvgAge.matrix=matrix(rep(0,length(url.names)*length(years)),ncol = length(years))
 AvgMV.matrix=matrix(rep(0,length(url.names)*length(years)),ncol = length(years))
@@ -36,15 +37,17 @@ for (year in years){
   market.values=market.values[,-ncol(market.values)]
   names(market.values)=colum.names
   market.values$Age=as.numeric(sub(",",".",market.values$Age))
-  market.values$TMV=regmatches(market.values$`Total market value`, gregexpr("[[:digit:]]+[[:punct:]][[:digit:]]+", market.values$`Total market value`))
-  market.values$TMV=as.numeric(market.values$TMV)
-  market.values$AMV=regmatches(market.values$`ø-MV`, gregexpr("[[:digit:]]+[[:punct:]][[:digit:]]+", market.values$`ø-MV`))
-  market.values$AMV=as.numeric(market.values$AMV)
+  if (!is.null(market.values$`Total Market Value`)){
+    market.values$TMV=regmatches(market.values$`Total Market Value`, gregexpr("[[:digit:]]+[[:punct:]][[:digit:]]+", market.values$`Total Market Value`))
+    market.values$TMV=as.numeric(market.values$TMV)
+    market.values$AMV=regmatches(market.values$`ø-MV`, gregexpr("[[:digit:]]+[[:punct:]][[:digit:]]+", market.values$`ø-MV`))
+    market.values$AMV=as.numeric(market.values$AMV)
+  }
     
   for (team in market.values$name){
     AvgAge.matrix[team,year]=market.values[market.values$name==team,"Age"]
-    TotMV.matrix[team,year]=market.values[market.values$name==team,"TMV"]
-    AvgMV.matrix[team,year]=market.values[market.values$name==team,"AMV"]
+    TotMV.matrix[team,year]=ifelse(is.null(market.values[market.values$name==team,"TMV"]),0,market.values[market.values$name==team,"TMV"])
+    AvgMV.matrix[team,year]=ifelse(is.null(market.values[market.values$name==team,"AMV"]),0,market.values[market.values$name==team,"AMV"])
 
   }
 }
