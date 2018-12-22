@@ -382,19 +382,13 @@ ENG_preparation <- function(n_teams,include_odds){
       ATP=matrix(rep(0,2*n_rounds),ncol = 2)
       
       for (i in 1:sum(playing_stat$HomeTeam==t)){
-<<<<<<< HEAD
-        w_round=ceiling(which(playing_stat$HomeTeam==t)[i]/10)
-        HTP[w_round,]=t(c(HFTR.point[which(playing_stat$HomeTeam==t)[i]],as.Date(playing_stat[which(playing_stat$HomeTeam==t)[i],c("Date")])))
-      }
-      for (i in 1:sum(playing_stat$AwayTeam==t)){
-        w_round=ceiling(which(playing_stat$AwayTeam==t)[i]/10)
-=======
+
         w_round=ceiling(which(playing_stat$HomeTeam==t)[i]/(n.teams/2))
         HTP[w_round,]=t(c(HFTR.point[which(playing_stat$HomeTeam==t)[i]],as.Date(playing_stat[which(playing_stat$HomeTeam==t)[i],c("Date")])))
       }
       for (i in 1:sum(playing_stat$AwayTeam==t)){
         w_round=ceiling(which(playing_stat$AwayTeam==t)[i]/(n.teams/2))
->>>>>>> Adding-start-mv
+
         ATP[w_round,]=t(c(AFTR.point[which(playing_stat$AwayTeam==t)[i]],as.Date(playing_stat[which(playing_stat$AwayTeam==t)[i],c("Date")])))
       }
       TP=HTP+ATP

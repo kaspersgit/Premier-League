@@ -154,10 +154,3 @@ if (nrow(give_bf_odds('ENG'))!=0){
   }
 }
 
-<<<<<<< HEAD
-write.csv(real_and_predicted,paste("predictions_per_MW/prediction_MW",(nrow(dataf) %% 380)/10,"_",as.Date(tail(dataf$Date,n=1),"%d/%m/%y"),".csv",sep = ""))
-=======
-if (!is.null(real_and_predicted$Drawodd[10])) {
-  print("SUCCESFUL PREDICTION")
-}
->>>>>>> Adding-start-mv

@@ -18,7 +18,7 @@ ENG_db_updating <- function(n_teams){
   last_game_in_db <- as.numeric(dbGetQuery(con,'SELECT 
                             COUNT(*)
                             FROM 
-                              "20182019"'))
+                              temp_season'))
   
   
   # Import match detail data from internet (updated csv file)
@@ -39,7 +39,7 @@ ENG_db_updating <- function(n_teams){
     new_games_for_db <- cbind(((last_game_in_db+1):last_game_available),raw.data.current[((last_game_in_db+1):last_game_available),])
     
     #Insert the new rows into the db 69 columns of which the first one is just the row number
-    add_matches=dbSendQuery(con, 'INSERT INTO "20182019"  
+    add_matches=dbSendQuery(con, 'INSERT INTO temp_season  
                                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )')
     for (i in 1:nrow(new_games_for_db)){
       dbBind(add_matches, unname(new_games_for_db[i,]))

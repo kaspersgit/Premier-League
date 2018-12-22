@@ -55,7 +55,7 @@ give_bf_odds <- function(country){
       
       # To get team names similar to already used teamnames in main script
       BF.names=c("Arsenal","Aston Villa","Birmingham","Blackburn","Blackpool","Bolton","Bournemouth","Bradford","Brighton","Burnley","Cardiff","Charlton","Chelsea","Coventry","C Palace","Derby","Everton","Fulham","Huddersfield","Hull","Ipswich","Leeds","Leicester","Liverpool","Man City","Man Utd","Middlesbrough","Newcastle","Norwich","Portsmouth","QPR","Reading","Sheffield United","Southampton","Stoke","Sunderland","Swansea","Tottenham","Watford","West Brom","West Ham","Wigan","Wolves","Wimbledon")
-      team.names=c("Arsenal","AstonVilla","Birmingham","Blackburn","Blackpool","Bolton","Bournemouth","Bradford","Brighton","Burnley","Cardiff","Charlton","Chelsea","Coventry","CrystalPalace","Derby","Everton","Fulham","Huddersfield","Hull","Ipswich","Leeds","Leicester","Liverpool","ManCity","ManUnited","Middlesbrough","Newcastle","Norwich","Portsmouth","QPR","Reading","Sheffield United","Southampton","Stoke","Sunderland","Swansea","Tottenham","Watford","WestBrom","WestHam","Wigan","Wolves","Wimbledon")
+      team.names=c("Arsenal","AstonVilla","Birmingham","Blackburn","Blackpool","Bolton","Bournemouth","Bradford","Brighton","Burnley","Cardiff","Charlton","Chelsea","Coventry","CrystalPalace","Derby","Everton","Fulham","Huddersfield","Hull","Ipswich","Leeds","Leicester","Liverpool","ManCity","ManUnited","Middlesbrough","Newcastle","Norwich","Portsmouth","QPR","Reading","SheffieldUnited","Southampton","Stoke","Sunderland","Swansea","Tottenham","Watford","WestBrom","WestHam","Wigan","Wolves","Wimbledon")
       hometeam=team.names[which(BF.names==hometeam)]
       awayteam=team.names[which(BF.names==awayteam)]
       
