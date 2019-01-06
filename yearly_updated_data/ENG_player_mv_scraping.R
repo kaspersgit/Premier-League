@@ -13,7 +13,7 @@ for (s in 1:18){
   #extract the links to the team pages
   teams_urls <- league_html %>% html_nodes(".hide-for-pad .vereinprofil_tooltip") %>% html_attr("href") %>% as.character()
   
-  assign(paste0("players_value_",season_start),setNames(data.frame(matrix(ncol = 3, nrow = 0)), c("name", "MV", "season")))
+  assign(paste0("players_value_",season_start),setNames(data.frame(matrix(ncol = 4, nrow = 0)), c("season","team","name","MV")))
   
   # Loop over the different team pages
   for (team_url in teams_urls){

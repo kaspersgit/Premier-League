@@ -37,9 +37,11 @@ for (year in years){
   market.values=market.values[,-ncol(market.values)]
   names(market.values)=colum.names
   market.values$Age=as.numeric(sub(",",".",market.values$Age))
+  million_billion = vector('integer',length=nrow(market.values))
   if (!is.null(market.values$`Total Market Value`)){
+    million_billion=ifelse(regmatches(market.values$`Total Market Value`,gregexpr("[a-z]+", market.values$`Total Market Value`))=='bn',1000,1)
     market.values$TMV=regmatches(market.values$`Total Market Value`, gregexpr("[[:digit:]]+[[:punct:]][[:digit:]]+", market.values$`Total Market Value`))
-    market.values$TMV=as.numeric(market.values$TMV)
+    market.values$TMV=as.numeric(market.values$TMV)*million_billion
     market.values$AMV=regmatches(market.values$`ø-MV`, gregexpr("[[:digit:]]+[[:punct:]][[:digit:]]+", market.values$`ø-MV`))
     market.values$AMV=as.numeric(market.values$AMV)
   }
