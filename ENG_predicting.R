@@ -20,7 +20,7 @@ if(!exists("foo", mode="function")) source("external_connected_scripts/ENG_db_up
 if(!exists("foo", mode="function")) source("external_connected_scripts/ENG_exp_lineups_V2.R")
 if(!exists("foo", mode="function")) source("external_connected_scripts/ENG_exp_lineups.R")
 if(!exists("foo", mode="function")) source("external_connected_scripts/ENG_db_connection.R")
-if(!exists("foo", mode="function")) source("external_connected_scripts/give_bf_odds.R")
+if(!exists("foo", mode="function")) source("external_connected_scripts/pinnacle_betting.R")
 if(!exists("foo", mode="function")) source("external_connected_scripts/ENG_db_save_prediction.R")
 if(!exists("foo", mode="function")) source("ENG_cleaningandpreparing.R")
 
@@ -29,7 +29,7 @@ n_teams = 20
 
 # Based on if there is a match within a week according to BetFair then run script
 # Should look into using pinnacle API so bets can be made automatically
-if (nrow(give_bf_odds('ENG'))!=0){
+if (nrow(give_pinnacle_odds('ENG'))!=0){
   
   # Before starting the ENG_db_updating function we need to make sure the internet connection is good
   #If not this will end in an error halfway updating the DB, meaning we have to delete rows in some tables manually
@@ -116,41 +116,45 @@ if (nrow(give_bf_odds('ENG'))!=0){
   test_prediction$Drawodd=1/test_prediction$Draw
   test_prediction$Awayodd=1/test_prediction$Away
   
-  # Using BF odds to see what the best bet is
-  # Getting the odds from BetFair
-  bf_odds = give_bf_odds('ENG')
-  bf_odds = bf_odds[1:(n_teams/2),]
-  bf_odds = data.frame(bf_odds)
+  # Using Pinnacle odds to see what the best bet is
+  # Getting the odds from Pinnacle
+  pinnacle_odds = give_pinnacle_odds()
+  pinnacle_odds = pinnacle_odds[1:(n_teams/2),]
+  pinnacle_odds = data.frame(pinnacle_odds)
   
   # Adding our predicted odds
   test_prediction = data.frame(test_prediction[,c("HomeTeam","AwayTeam","PredictedOutcome","Homeodd","Drawodd","Awayodd")])
-  real_and_predicted = merge(x = bf_odds, y = test_prediction, by = c("HomeTeam","AwayTeam"), all.x = TRUE)
+  real_and_predicted = merge(x = pinnacle_odds, y = test_prediction, by = c("HomeTeam","AwayTeam"), all.x = TRUE)
   
   # See what the best deal is according to the ratio between BF odds and our odds
-  pred_real_oddratio = real_and_predicted[,c("BF_H_odds","BF_D_odds","BF_A_odds")]/real_and_predicted[,c("Homeodd","Drawodd","Awayodd")]
+  pred_real_oddratio = real_and_predicted[,c("P_H_odds","P_D_odds","P_A_odds")]/real_and_predicted[,c("Homeodd","Drawodd","Awayodd")]
   best_ratio = apply(pred_real_oddratio,1,max)
   best_ratio_outcome = max.col(pred_real_oddratio)
   best_ratio_outcome = ifelse(best_ratio_outcome == 1, "H",ifelse(best_ratio_outcome == 2,"D","A"))
   
   # Put all columns together 
   real_and_predicted = real_and_predicted[,c("Date","HomeTeam","AwayTeam","PredictedOutcome","Homeodd","Drawodd","Awayodd",
-                                             "BF_H_odds","BF_D_odds","BF_A_odds")]
+                                             "P_H_odds","P_D_odds","P_A_odds")]
   names(real_and_predicted) =c("MatchDate","HomeTeam","AwayTeam","PredictedOutcome","Homeodd","Drawodd","Awayodd",
-                                             "BF_H_odds","BF_D_odds","BF_A_odds")
+                                             "P_H_odds","P_D_odds","P_A_odds")
   real_and_predicted = cbind(real_and_predicted,best_ratio,best_ratio_outcome)
   real_and_predicted = real_and_predicted[order(real_and_predicted$MatchDate),]
   
-  # Inserting timestamp on when the prediction was made
+  # Inserting timestamp on when the prediction was made and add bookmaker of which we use the odds
   real_and_predicted$timestamp = Sys.time()
+  real_and_predicted$bookmaker_source = 'Pinnacle'
+  
+  # select only correctly predicted games (no missing data)
+  new_predicted_games <- real_and_predicted[!is.na(real_and_predicted$best_ratio),]
   
   # Wright prediction in csv file with mw and dat of first game as title, should be written into an sql table soon
-  write.csv(real_and_predicted,paste("predictions_per_MW/prediction_MW",(nrow(dataf) %% (n_teams*(n_teams-1)))/(n_teams/2),"_",as.Date(head(real_and_predicted$MatchDate,n=1)),".csv",sep = ""))
+  write.csv(new_predicted_games,paste("predictions_per_MW/prediction_MW",(nrow(dataf) %% (n_teams*(n_teams-1)))/(n_teams/2),"_",as.Date(head(real_and_predicted$MatchDate,n=1)),".csv",sep = ""))
 
   # Wright predictions in sqlite database table
-  ENG_insert_predictions(real_and_predicted)
+  ENG_insert_predictions(new_predicted_games)
   
-  if (!is.null(real_and_predicted$Drawodd[10])) {
-    print("SUCCESFUL PREDICTION")
+  if (!is.null(new_predicted_games$Drawodd[1])) {
+    print(paste("SUCCESFULLY PREDICTED", nrow(new_predicted_games),"GAMES"))
   }
 }
 

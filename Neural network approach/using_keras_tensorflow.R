@@ -1,5 +1,6 @@
+setwd("D:/Het Project/Voetbal predictions/Premier-League")
 # install packages being used
-used.packages=c("keras","tensorflow")
+used.packages=c("keras","tensorflow","qlcMatrix")
 not.installed=!(used.packages %in% rownames(installed.packages()))
 if(length(used.packages[not.installed])>0){
   install.packages(used.packages[not.installed])
@@ -8,9 +9,10 @@ if(length(used.packages[not.installed])>0){
 # Load in the keras package
 library(keras)
 library(tensorflow)
+library("qlcMatrix")
 
-# Install TensorFlow
-install_tensorflow()
+# Install TensorFlow, I think only needed to do once
+#install_tensorflow()
 
 # Read in `lineup` data
 hist_linup <- read.csv("clean_dataset_with_fifascores.csv", header = TRUE) 
@@ -71,7 +73,7 @@ dimnames(hist_linup_norm) <- NULL
 set.seed(999)
 
 # Determine sample size
-ind <- sample(2, nrow(hist_linup_norm), replace=TRUE, prob=c(0.67, 0.33))
+ind <- sample(2, nrow(hist_linup_norm), replace=TRUE, prob=c(0.7, 0.3))
 
 # Split the `iris` data
 hist_linup.training <- hist_linup_norm[ind==1, score_columns]
@@ -79,7 +81,8 @@ hist_linup.test <- hist_linup_norm[ind==2, score_columns]
 
 # Split the class attribute
 hist_linup.trainingtarget <- hist_linup_norm[ind==1, target_columns]
-hist_linup.testtarget <- hist_linup_norm[ind==2, target_columns]
+hist_linup.testtarget <- hist_linup_norm[ind==2, c(target_columns,odds_columns)]
+
 
 ## Constructing the model
 
@@ -118,12 +121,13 @@ model %>% compile(
   metrics = 'accuracy'
 )
 
+set.seed(999)
 # Fit the model 
 history <- model %>% fit(
   hist_linup.training, 
   hist_linup.trainingtarget, 
-  epochs = 50, 
-  batch_size = 10, 
+  epochs = 500, 
+  batch_size = 20, 
   validation_split = 0.2,
   verbose = 1
 )
@@ -149,8 +153,45 @@ history <- model %>% fit(
 
 # Predict the classes for the test data
 classes <- model %>% predict_classes(hist_linup.test, batch_size = 128)
+prob_classes <- model %>% predict_proba(hist_linup.test, batch_size = 128, verbose = 1)
 test_target <- ifelse(hist_linup.testtarget[,1]==1,0,ifelse(hist_linup.testtarget[,2]==1,1,2))
 
 # Confusion matrix
 table(test_target, classes)
 
+# Table with predicted probability and odds
+prob_odds <- cbind(prob_classes, hist_linup.testtarget[,c(1:6)])
+colnames(prob_odds) <- c("pred_h","pred_d","pred_a","real_h","real_d","real_a","odd_h","odd_d","odd_a")
+ratio_h <- prob_odds[,'odd_h']/(1/prob_odds[,'pred_h'])
+ratio_d <- prob_odds[,'odd_d']/(1/prob_odds[,'pred_d'])
+ratio_a <- prob_odds[,'odd_a']/(1/prob_odds[,'pred_a'])
+ratios <- cbind(ratio_h,ratio_d,ratio_a)
+colnames(ratios) <- c("ratio_h","ratio_d","ratio_a")
+ratio_best <- as.numeric(rowMax(ratios))
+ratio_bet <- colnames(ratios)[apply(ratios, 1, which.max)] 
+outcome <- ifelse(prob_odds[,"real_h"]==1,'h',ifelse(prob_odds[,"real_d"]==1,'d','a'))
+
+df_base_ratios <- cbind(prob_odds,ratios,ratio_best,ratio_bet, outcome)
+
+# Calculate profit
+minprofmarg = 1.2
+maxprofmarg = 1.8
+
+
+gamesbetted=df_base_ratios[(df_base_ratios[,"ratio_best"]>minprofmarg)&(df_base_ratios[,"ratio_best"]<maxprofmarg),]
+gamesbetted <- gamesbetted[gamesbetted[,"ratio_bet"] != c('ratio_d'),]
+gamescorrect=gamesbetted[substring(gamesbetted[,"ratio_bet"],7,7)==gamesbetted[,"outcome"],]
+oddsmatrix=gamescorrect[,c('odd_h','odd_d','odd_a')]
+
+#cost
+cost = nrow(gamesbetted) * 10
+
+#revenue
+revenue=rep(0,nrow(gamescorrect))
+for (i in 1:nrow(gamescorrect)){
+  revenue[i]=as.numeric(oddsmatrix[i,paste0("odd_",substring(gamescorrect[i,"ratio_bet"],7,7))]) * 10
+}
+
+#profit
+profit = sum(revenue) - sum(cost)
+c(profit,sum(revenue),sum(cost))

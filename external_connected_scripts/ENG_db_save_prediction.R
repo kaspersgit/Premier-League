@@ -8,7 +8,7 @@ ENG_insert_predictions <- function(real_and_predicted){
   
   # Delete content of input table (because we just use this table for input, a trigger adds it to the main table)
   add_predictions =dbSendQuery(con, 'INSERT INTO ENG_match_prediction
-                                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
+                                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
   
   for (i in 1:nrow(real_and_predicted)){
     dbBind(add_predictions, unname(real_and_predicted[i,]))

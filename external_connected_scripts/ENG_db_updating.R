@@ -7,6 +7,9 @@ ENG_db_updating <- function(n_teams){
   library("RSQLite")
   library(DBI)
   
+  # current season 
+  season = ifelse(strftime(Sys.Date(),format = "%V") < 26, paste0(as.numeric(format(Sys.Date(),"%Y"))-1,as.numeric(format(Sys.Date(),"%Y"))),paste0(as.numeric(format(Sys.Date(),"%Y")),as.numeric(format(Sys.Date(),"%Y"))+1))
+  
   # for in case we have to change the team names to make them in line with db names
   url.names=c("Arsenal","Aston Villa","Birmingham","Blackburn","Blackpool","Bolton","AFC Bournemouth","Bradford City","Brighton and Hove Albion","Burnley","Cardiff","Charlton","Chelsea","Coventry City","Crystal Palace","Derby","Everton","Fulham","Huddersfield Town","Hull City","Ipswich","Leeds","Leicester City","Liverpool","Manchester City","Manchester United","Middlesbrough","Newcastle United","Norwich","Portsmouth FC","QPR","Reading","Sheffield Utd.","Southampton","Stoke City","Sunderland","Swansea City","Tottenham Hotspur","Watford","West Bromwich Albion","West Ham United","Wigan","Wolves","Wimbledon")
   team.names=c("Arsenal","Aston Villa","Birmingham","Blackburn","Blackpool","Bolton","Bournemouth","Bradford","Brighton","Burnley","Cardiff","Charlton","Chelsea","Coventry","Crystal Palace","Derby","Everton","Fulham","Huddersfield","Hull","Ipswich","Leeds","Leicester","Liverpool","Man City","Man United","Middlesbrough","Newcastle","Norwich","Portsmouth","QPR","Reading","Sheffield United","Southampton","Stoke","Sunderland","Swansea","Tottenham","Watford","West Brom","West Ham","Wigan","Wolves","Wimbledon")
@@ -15,15 +18,21 @@ ENG_db_updating <- function(n_teams){
   con = dbConnect(RSQLite::SQLite(), dbname="historic_data/football.db")
   
   # Check how many games of season 2018-2019 are already in the db 
-  last_game_in_db <- as.numeric(dbGetQuery(con,'SELECT 
+  last_game_in_db <- as.numeric(dbGetQuery(con, paste('SELECT 
                             COUNT(*)
                             FROM 
-                              temp_season'))
+                              ENG_matches_hist
+                            WHERE 
+                              season =',season)))
   
   
   # Import match detail data from internet (updated csv file)
-  raw.data.current = read.csv("http://www.football-data.co.uk/mmz4281/1819/E0.csv")
-  raw.data.current$Date = as.Date(raw.data.current$Date,"%d/%m/%y")
+  # give below in format YY(start year) YY(end year) so for season 2018 - 2019 -> 1819
+  season_short = paste0(substr(season,3,4),substr(season,7,8))
+  raw.data.current = read.csv(paste0("http://www.football-data.co.uk/mmz4281/",season_short,"/E0.csv"))
+  clean.date = strptime(as.character(raw.data.current$Date), "%d/%m/%Y")
+  raw.data.current$Date = format(clean.date, "%Y-%m-%d")
+  raw.data.current$season = season
   raw.data.current = raw.data.current[order(raw.data.current$Date,raw.data.current$HomeTeam),]
   
   #to make it import as text instead of changing it to a number into sqlite
@@ -40,7 +49,7 @@ ENG_db_updating <- function(n_teams){
     
     #Insert the new rows into the db 69 columns of which the first one is just the row number
     add_matches=dbSendQuery(con, 'INSERT INTO temp_season  
-                                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )')
+                                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?)')
     for (i in 1:nrow(new_games_for_db)){
       dbBind(add_matches, unname(new_games_for_db[i,]))
     }
