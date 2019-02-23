@@ -1,11 +1,12 @@
-give_pinnacle_odds <- function(country = 'GB'){
+give_pinnacle_odds <- function(country = 'ENG',pwd){
   library(pinnacle.API)
   library(httr)
   library(jsonlite)
+  library(askpass)
   AcceptTermsAndConditions(accepted = TRUE)
   
   user <- "KD1049991"
-  pwd <- "cle1992!"
+  #pwd <- askpass()
   
   base <- "https://api.pinnaclesports.com/"
   
@@ -19,7 +20,7 @@ give_pinnacle_odds <- function(country = 'GB'){
   # Get league id
   # Swedish allsvenska 1728
   # English Premier league 1980
-  with(GetLeaguesByID(29), leagues.id[grepl("england - premier league",tolower(leagues.name))])
+  #with(GetLeaguesByID(29), leagues.id[grepl("england - premier league",tolower(leagues.name))])
   
   eng_pl_id <- with(GetLeaguesByID(29), leagues.id[leagues.name=="England - Premier League"])
   
@@ -37,7 +38,7 @@ give_pinnacle_odds <- function(country = 'GB'){
   names(structured_odds) <- c('league','Date','HomeTeam','AwayTeam','P_H_odds','P_D_odds','P_A_odds')
   
   # To get team names similar to already used teamnames in main script
-  p.names=c("Arsenal","Aston Villa","Birmingham","Blackburn","Blackpool","Bolton","Bournemouth","Bradford","Brighton","Burnley","Cardiff City","Charlton","Chelsea","Coventry","Crystal Palace","Derby","Everton","Fulham","Huddersfield Town","Hull","Ipswich","Leeds","Leicester City","Liverpool","Manchester City","Manchester United","Middlesbrough","Newcastle United","Norwich","Portsmouth","QPR","Reading","Sheffield United","Southampton","Stoke","Sunderland","Swansea","Tottenham Hotspur","Watford","West Brom","West Ham United","Wigan","Wolverhampton Wanderers","Wimbledon")
+  p.names=c("Arsenal","Aston Villa","Birmingham","Blackburn","Blackpool","Bolton","Bournemouth","Bradford","Brighton and Hove Albion","Burnley","Cardiff City","Charlton","Chelsea","Coventry","Crystal Palace","Derby","Everton","Fulham","Huddersfield Town","Hull","Ipswich","Leeds","Leicester City","Liverpool","Manchester City","Manchester United","Middlesbrough","Newcastle United","Norwich","Portsmouth","QPR","Reading","Sheffield United","Southampton","Stoke","Sunderland","Swansea","Tottenham Hotspur","Watford","West Brom","West Ham United","Wigan","Wolverhampton Wanderers","Wimbledon")
   team.names=c("Arsenal","AstonVilla","Birmingham","Blackburn","Blackpool","Bolton","Bournemouth","Bradford","Brighton","Burnley","Cardiff","Charlton","Chelsea","Coventry","CrystalPalace","Derby","Everton","Fulham","Huddersfield","Hull","Ipswich","Leeds","Leicester","Liverpool","ManCity","ManUnited","Middlesbrough","Newcastle","Norwich","Portsmouth","QPR","Reading","SheffieldUnited","Southampton","Stoke","Sunderland","Swansea","Tottenham","Watford","WestBrom","WestHam","Wigan","Wolves","Wimbledon")
   for (i in 1:nrow(structured_odds)){
     structured_odds$HomeTeam[i]=team.names[which(p.names==structured_odds$HomeTeam[i])]

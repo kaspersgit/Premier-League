@@ -12,18 +12,21 @@ ENG_exp_lineups_V2 <- function(){
   # Don't exactly know how this part works but it enables for easier extraction afterwards
   exp_rawpage <- html_session(exp_url)
   
-  # getting all the data for all the 10 next games
-  exp_lineup_matchdate <- html_nodes(exp_rawpage, ".lineup__time") %>% html_text() %>% as.character()
-  exp_lineup_teams <- html_nodes(exp_rawpage, ".lineup__mteam") %>% html_text() %>% as.character()
+  #try to get a total scrape of lineups to avoid having postponed games breaking the script
+  exp_lineup_match_info <- html_nodes(exp_rawpage, ".is-soccer div")
+  
+  # getting all the data for all the 10 next games (if available)
+  exp_lineup_matchdate <- html_nodes(exp_lineup_match_info, ".lineup__time") %>% html_text() %>% as.character()
+  exp_lineup_teams <- html_nodes(exp_lineup_match_info, ".lineup__mteam") %>% html_text() %>% as.character()
   exp_lineup_teams <- trimws(exp_lineup_teams)
   
   # extract links to players as they are abbreviated on the original page
-  exp_lineup_home_links <- html_nodes(exp_rawpage, ".is-home a") %>% html_attr("href")
+  exp_lineup_home_links <- html_nodes(exp_lineup_match_info, ".is-home a") %>% html_attr("href")
   
   # Create empty dataframe and fill it up with players names taken from their personal page
   exp_lineup_home <- NULL
   for (p in 1:length(exp_lineup_home_links)){
-    exp_lineup_home_player <- html_nodes(html_session(paste0("https://www.rotowire.com",exp_lineup_home_links[p])), ".mb-0.hide-until-md") %>% html_text() %>% as.character() 
+    exp_lineup_home_player <- html_nodes(html_session(paste0("https://www.rotowire.com",exp_lineup_home_links[p])), ".p-card__player-name") %>% html_text() %>% as.character() 
     exp_lineup_home <- rbind(exp_lineup_home,exp_lineup_home_player)
     }
   
@@ -31,7 +34,7 @@ ENG_exp_lineups_V2 <- function(){
   
   exp_lineup_away <- NULL
   for (p in 1:length(exp_lineup_away_links)){
-    exp_lineup_away_player <- html_nodes(html_session(paste0("https://www.rotowire.com",exp_lineup_away_links[p])), ".mb-0.hide-until-md") %>% html_text() %>% as.character() 
+    exp_lineup_away_player <- html_nodes(html_session(paste0("https://www.rotowire.com",exp_lineup_away_links[p])), ".p-card__player-name") %>% html_text() %>% as.character() 
     exp_lineup_away <- rbind(exp_lineup_away,exp_lineup_away_player)
   }
   

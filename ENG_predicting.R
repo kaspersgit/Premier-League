@@ -15,6 +15,7 @@ library("DiagrammeR")
 library("qlcMatrix")
 library("RSQLite")
 library("DBI")
+library("askpass")
 
 if(!exists("foo", mode="function")) source("external_connected_scripts/ENG_db_updating.R")
 if(!exists("foo", mode="function")) source("external_connected_scripts/ENG_exp_lineups_V2.R")
@@ -27,9 +28,12 @@ if(!exists("foo", mode="function")) source("ENG_cleaningandpreparing.R")
 # amount of teams per season in the highest league of the country
 n_teams = 20
 
+# get odds for coming matches from pinnacle
+pinnacle_odds = give_pinnacle_odds(country = 'ENG',pwd = askpass())
+
 # Based on if there is a match within a week according to BetFair then run script
 # Should look into using pinnacle API so bets can be made automatically
-if (nrow(give_pinnacle_odds('ENG'))!=0){
+if (nrow(pinnacle_odds)!=0){
   
   # Before starting the ENG_db_updating function we need to make sure the internet connection is good
   #If not this will end in an error halfway updating the DB, meaning we have to delete rows in some tables manually
@@ -118,7 +122,6 @@ if (nrow(give_pinnacle_odds('ENG'))!=0){
   
   # Using Pinnacle odds to see what the best bet is
   # Getting the odds from Pinnacle
-  pinnacle_odds = give_pinnacle_odds()
   pinnacle_odds = pinnacle_odds[1:(n_teams/2),]
   pinnacle_odds = data.frame(pinnacle_odds)
   
